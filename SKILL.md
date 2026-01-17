@@ -9,7 +9,16 @@ description: Use when reviewing code, detecting code smells, checking code quali
 
 Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer principles. **Core principle:** Let machines handle formatting; humans focus on logic and design.
 
-**CRITICAL:** Before ANY review, ask project positioning to calibrate strictness.
+## ⚠️ MANDATORY FIRST STEP
+
+**STOP! Before doing ANYTHING else, you MUST ask the user:**
+
+> What is your project's positioning?
+> 1. **Agile (MVP/Startup)** - Rapid iteration, market validation
+> 2. **Growth** - Business expansion, architecture stabilization
+> 3. **Enterprise** - Long-term maintenance, stability first
+
+**DO NOT proceed with any review until the user answers this question.**
 
 ## When to Use
 
@@ -77,14 +86,9 @@ digraph review_flow {
 }
 ```
 
-## Step 1: Ask Project Positioning (MANDATORY)
+## Step 1: Project Positioning (Already Asked Above)
 
-**Before reviewing, ALWAYS ask:**
-
-> What is the project's positioning?
-> 1. **Agile (MVP/Startup)** - Rapid iteration, market validation
-> 2. **Growth** - Business expansion, architecture stabilization
-> 3. **Enterprise** - Long-term maintenance, stability first
+Once the user answers, apply the appropriate strictness level.
 
 ### Project Type Definitions
 

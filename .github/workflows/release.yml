@@ -1,0 +1,141 @@
+name: Release Skill Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate Skill
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate skill
+        run: python scripts/validate_skill.py .
+
+  release:
+    name: Package and Release
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF_NAME}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Verify version matches SKILL.md
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          SKILL_VERSION=$(grep -E "^version:" SKILL.md | head -1 | sed 's/version:[[:space:]]*//')
+          
+          if [ -z "$SKILL_VERSION" ]; then
+            echo "⚠️ No version found in SKILL.md frontmatter"
+          elif [ "$TAG_VERSION" != "$SKILL_VERSION" ]; then
+            echo "❌ Version mismatch!"
+            echo "   Tag version: $TAG_VERSION"
+            echo "   SKILL.md version: $SKILL_VERSION"
+            exit 1
+          else
+            echo "✅ Version match: $SKILL_VERSION"
+          fi
+
+      - name: Create skill package
+        run: |
+          SKILL_NAME="pragmatic-clean-code-reviewer"
+          VERSION="${GITHUB_REF_NAME}"
+          
+          # Create package directory
+          mkdir -p dist
+          
+          # Create .skill file (zip format) with skill contents
+          # Include only the essential skill files
+          zip -r "dist/${SKILL_NAME}-${VERSION}.skill" \
+            SKILL.md \
+            references/ \
+            -x "*.git*" \
+            -x "*__pycache__*" \
+            -x "*.DS_Store"
+          
+          # Also create a plain zip for compatibility
+          zip -r "dist/${SKILL_NAME}-${VERSION}.zip" \
+            SKILL.md \
+            references/ \
+            -x "*.git*" \
+            -x "*__pycache__*" \
+            -x "*.DS_Store"
+          
+          echo "📦 Created packages:"
+          ls -la dist/
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "Generating changelog from $PREV_TAG to ${GITHUB_REF_NAME}..."
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --no-merges)
+          else
+            echo "First release, generating full changelog..."
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges | head -20)
+          fi
+          
+          # Write to file for multi-line handling
+          cat << EOF > release_notes.md
+          ## What's Changed
+          
+          $CHANGELOG
+          
+          ## Installation
+          
+          ### Option 1: Clone directly
+          \`\`\`bash
+          git clone https://github.com/${{ github.repository }}.git ~/.claude/skills/pragmatic-clean-code-reviewer
+          \`\`\`
+          
+          ### Option 2: Download and extract
+          1. Download the \`.skill\` or \`.zip\` file from this release
+          2. Extract to \`~/.claude/skills/pragmatic-clean-code-reviewer/\`
+          
+          ## Usage
+          
+          Invoke the skill with:
+          \`\`\`
+          /pragmatic-clean-code-reviewer
+          \`\`\`
+          
+          Or use natural language: "Review my code for code smells"
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.skill
+            dist/*.zip
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

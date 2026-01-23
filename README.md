@@ -14,7 +14,7 @@
   <a href="#features">Features</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
-  <a href="#project-types">Project Types</a> •
+  <a href="#project-positioning">Project Positioning</a> •
   <a href="#rule-sources">Rule Sources</a> •
   <a href="#license">License</a>
 </p>
@@ -39,29 +39,27 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 ```mermaid
 flowchart TD
-    A[🚀 Start Review] --> B{📋 Ask Project Positioning}
-    B --> C[🚀 Agile]
-    B --> D[📈 Growth]
-    B --> E[🏢 Enterprise]
-
-    C --> F[Apply Relaxed Strictness]
-    D --> G[Apply Moderate Strictness]
-    E --> H[Apply Strict Strictness]
-
-    F --> I[🔍 Identify Language Paradigm]
-    G --> I
-    H --> I
-
+    A[🚀 Start Review] --> B{📋 Project Positioning}
+    B --> C[Q1: Who uses it?]
+    C --> D[Q2: What standard?]
+    D --> E{Need Q3?}
+    
+    E -->|D2/D3 + R3/R4| F[Q3: How critical?]
+    E -->|Otherwise| G[Determine Level]
+    F --> G
+    
+    G --> H[L1-L5 Strictness]
+    H --> I[🔍 Identify Language]
     I --> J[📝 Run 15-Point Checklist]
     J --> K{Issues Found?}
 
-    K -->|Yes| L[📚 Consult Reference Manual]
+    K -->|Yes| L[📚 Consult References]
     K -->|No| M[✅ Ready to Merge]
 
-    L --> N[📋 Generate Report with Citations]
+    L --> N[📋 Generate Report]
     N --> O{Verdict}
 
-    O -->|Critical| P[🚫 Major Rework Needed]
+    O -->|Critical| P[🚫 Major Rework]
     O -->|Important| Q[⚠️ Needs Fixes]
     O -->|Minor Only| M
 ```
@@ -70,29 +68,48 @@ flowchart TD
 
 | Step | Action | Purpose |
 |------|--------|---------|
-| 1️⃣ | Ask project positioning | Calibrate strictness level |
+| 1️⃣ | Ask project positioning (Q1/Q2/Q3) | Determine L1-L5 strictness |
 | 2️⃣ | Identify language paradigm | Adjust OOP-centric rules |
 | 3️⃣ | Run 15-point checklist | Systematic code evaluation |
-| 4️⃣ | Consult reference manual | Look up detailed rules (350+) |
+| 4️⃣ | Consult reference files | Look up detailed rules (350+) |
 | 5️⃣ | Generate report | Cite rules, prioritize issues |
 
 ---
 
 ## Features
 
-### 🎯 Project-Aware Strictness
+### 🎯 3+4+2 Project Positioning System
 
-Before each review, the skill asks about your project's positioning and adjusts its strictness accordingly:
+A refined questionnaire system that determines the right strictness level:
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  What is the project's positioning?                          │
-│                                                              │
-│  1. Agile (MVP)    → Relaxed   (Ship it if it works)         │
-│  2. Growth         → Moderate  (Balance speed & quality)     │
-│  3. Enterprise     → Strict    (Think of maintainers 5y+)    │
-└──────────────────────────────────────────────────────────────┘
+Q1: Who will use this code? (3 options)
+├── 🧑 Solo — Only myself
+├── 👥 Internal — Team/company
+└── 🌍 External — External users/OSS
+
+Q2: What standard? (4 options)
+├── 🚀 Ship — Just make it work
+├── 📦 Normal — Basic quality
+├── 🛡️ Careful — Careful review
+└── 🔒 Strict — Highest standard
+
+Q3: How critical? (2 options, conditional)
+├── 🔧 Normal — Can wait for fix
+└── 💎 Critical — Outage if broken
+
+→ Results in L1-L5 strictness level
 ```
+
+### 🏷️ Five Strictness Levels
+
+| Level | Name | Key Question | Examples |
+|-------|------|--------------|----------|
+| **L1** | 🧪 Lab | Does it run? | Experiments, scripts |
+| **L2** | 🛠️ Tool | Understandable next month? | Personal tools |
+| **L3** | 🤝 Team | Can teammates take over? | Team projects |
+| **L4** | 🚀 Infra | Others suffer if broken? | Internal SDKs |
+| **L5** | 🏛️ Critical | Can it pass audit? | Finance, medical |
 
 ### ✅ 15-Point Review Checklist
 
@@ -108,29 +125,36 @@ Quick but comprehensive review covering:
 
 ### 📋 Standardized Reporting
 
-Every review produces a consistent, visually clear report:
+Every review produces a consistent, visually clear report with detailed rule explanations:
 
 ```markdown
 ## 📋 Code Review Report
 
-**Project Positioning:** Growth
+**Project Positioning:** L3 Team
 **Review Scope:** src/services/*.ts
 
 ### 🔴 Critical Issues (Must Fix)
-- [auth.ts:45] SQL injection vulnerability (PP-72)
+- [auth.ts:45] SQL query built with string concatenation
+  - **Rule:** PP-72 (Keep It Simple and Minimize Attack Surfaces)
+  - **Principle:** String concatenation in SQL creates injection vulnerabilities
+  - **Suggestion:** Use parameterized queries
 
 ### 🟡 Important Issues (Should Fix)
-- [user.ts:120] Function exceeds 50 lines (CC-20)
+- [user.ts:120] Function `processData` has 8 parameters
+  - **Rule:** CC-26 (Function Arguments)
+  - **Principle:** Many parameters increase cognitive load. L3 threshold is ≤5.
+  - **Suggestion:** Group into a parameter object
 
 ### 🔵 Minor Issues (Nice to Have)
-- [utils.ts:33] Magic number should be named constant (CC-175)
+- [utils.ts:33] Magic number `86400`
+  - **Rule:** CC-175 (Replace Magic Numbers with Named Constants)
 
 ### ✅ Strengths
 - Good separation of concerns
 - Consistent naming conventions
 
 ### 📝 Verdict
-⚠️ Needs fixes before merge
+⚠️ Needs fixes — Critical SQL injection issue must be addressed
 ```
 
 ### 🔖 Rule Citation System
@@ -154,29 +178,52 @@ Rules are adjusted based on programming language paradigm:
 | Functional | Haskell, Elixir, F# | ⚠️ Limited |
 | Systems | Rust, Go, Zig | ⚠️ Different patterns |
 
-For unknown languages, the skill will ask about paradigm or search for characteristics.
-
 ---
 
 ## Installation
 
-### For Claude Code
+### Quick Install (Recommended)
+
+Choose your tool and run the corresponding command:
+
+| Tool | Install Command |
+|------|-----------------|
+| **Claude Code** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.claude/skills/pragmatic-clean-code-reviewer` |
+| **OpenCode** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.config/opencode/skills/pragmatic-clean-code-reviewer` |
+| **Codex** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.codex/skills/pragmatic-clean-code-reviewer` |
+
+### From GitHub Release
+
+1. Go to [Releases](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/releases)
+2. Download the latest `.skill` or `.zip` file
+3. Extract to your skills directory:
 
 ```bash
-# Option 1: Clone directly to skills directory
-git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
-  ~/.claude/skills/pragmatic-clean-code-reviewer
+# Claude Code
+unzip pragmatic-clean-code-reviewer-v*.zip -d ~/.claude/skills/
 
-# Option 2: Manual copy
-mkdir -p ~/.claude/skills/pragmatic-clean-code-reviewer
-cp SKILL.md reference-manual.md ~/.claude/skills/pragmatic-clean-code-reviewer/
+# OpenCode
+unzip pragmatic-clean-code-reviewer-v*.zip -d ~/.config/opencode/skills/
+
+# Codex
+unzip pragmatic-clean-code-reviewer-v*.zip -d ~/.codex/skills/
 ```
 
-### For Codex
+### Skills Directory Reference
+
+| Tool | Skills Directory |
+|------|------------------|
+| Claude Code | `~/.claude/skills/` |
+| OpenCode | `~/.config/opencode/skills/` |
+| Codex | `~/.codex/skills/` |
+
+### Verify Installation
+
+After installation, verify the skill is detected:
 
 ```bash
-git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
-  ~/.codex/skills/pragmatic-clean-code-reviewer
+# Check the skill file exists
+ls ~/.claude/skills/pragmatic-clean-code-reviewer/SKILL.md
 ```
 
 ---
@@ -198,23 +245,38 @@ git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
 
 ---
 
-## Project Types
+## Project Positioning
 
-| Type | Goal | Strictness | Typical Use Cases |
-|------|------|------------|-------------------|
-| **🚀 Agile** | Validate fast | ★☆☆☆☆ | MVP, hackathon, POC |
-| **📈 Growth** | Scale smart | ★★★☆☆ | Post-Series B, growing teams |
-| **🏢 Enterprise** | Stability first | ★★★★★ | Finance, medical, government |
+### Quick Lookup Table
+
+| Who (Q1) | Standard (Q2) | Critical (Q3) | Level | Example |
+|----------|---------------|---------------|-------|---------|
+| Solo | Ship | - | L1 | Experiment script |
+| Solo | Normal | - | L1 | Personal utility |
+| Solo | Careful | - | L2 | Long-term personal project |
+| Solo | Strict | - | L3 | Perfectionist project |
+| Internal | Ship | - | L1 | Team prototype |
+| Internal | Normal | - | L2 | Team daily development |
+| Internal | Careful | Normal | L2 | Internal helper tool |
+| Internal | Careful | Critical | L3 | **Internal SDK** |
+| Internal | Strict | Normal | L3 | Internal tool (high std) |
+| Internal | Strict | Critical | L4 | **Internal core infra** |
+| External | Ship | - | L2 | Product MVP |
+| External | Normal | - | L3 | General product feature |
+| External | Careful | Normal | L3 | Small OSS tool |
+| External | Careful | Critical | L4 | **Product core feature** |
+| External | Strict | Normal | L4 | OSS tool (high std) |
+| External | Strict | Critical | L5 | **Finance/Medical/Core OSS** |
 
 ### Strictness Matrix
 
-| Check | Agile | Growth | Enterprise |
-|-------|-------|--------|------------|
-| Functional Correctness | ★★★★★ | ★★★★★ | ★★★★★ |
-| Error Handling | ★★ | ★★★ | ★★★★★ |
-| Naming & Readability | ★★★ | ★★★★ | ★★★★★ |
-| Architecture (SRP/DIP) | ★ | ★★★ | ★★★★★ |
-| Testing | ★★ | ★★★★ | ★★★★★ |
+| Check | L1 | L2 | L3 | L4 | L5 |
+|-------|----|----|----|----|-----|
+| Functional Correctness | ★★★ | ★★★★ | ★★★★★ | ★★★★★ | ★★★★★ |
+| Error Handling | ★ | ★★ | ★★★ | ★★★★ | ★★★★★ |
+| Naming & Readability | ★ | ★★★ | ★★★★ | ★★★★★ | ★★★★★ |
+| Architecture | ☆ | ★ | ★★★ | ★★★★★ | ★★★★★ |
+| Testing | ☆ | ★ | ★★★ | ★★★★ | ★★★★★ |
 
 ---
 
@@ -224,39 +286,48 @@ git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
 
 > *"Care about your craft. Think about your work."*
 
-Key principles: DRY, ETC (Easy To Change), Tracer Bullets, Design by Contract
+Key principles: 
+- **DRY** (Don't Repeat Yourself) - PP-15
+- **YAGNI** (You Aren't Gonna Need It) - PP-43
+- **ETC** (Easy To Change) - PP-14
+- Design by Contract - PP-37
 
 ### 📘 Clean Code (CC-1 to CC-202)
 
 > *"Clean code reads like well-written prose."*
 
-Key principles: Small functions, meaningful names, no side effects, SOLID
+Key principles:
+- **KISS** (Keep It Simple) - CC-130
+- Small functions - CC-20, CC-21
+- Meaningful names - CC-4
+- **SOLID** - CA-8~12
 
 ### 📙 Clean Architecture (CA-1 to CA-48)
 
 > *"The goal of software architecture is to minimize human resources."*
 
-Key principles: Dependency Rule, Screaming Architecture, Plugin Architecture
+Key principles:
+- **SOLID** - CA-8~12
+- Dependency Rule - CA-31
+- Screaming Architecture - CA-30
+- Plugin Architecture - CA-47
+- Component Cohesion: **REP** (CA-14), **CCP** (CA-15), **CRP** (CA-16)
+- Component Coupling: **ADP** (CA-18), **SDP** (CA-19), **SAP** (CA-20)
 
 ---
 
-## Metrics Guidelines (Soft Reference)
+## Metrics Guidelines
 
-> **These are conversation starters, not hard gates.** A clear 60-line function beats three confusing 20-line functions.
+> **These are conversation starters, not hard gates.** A clear 60-line function beats three confusing 20-line functions *(exemption rationale, not default tolerance)*.
 
-### From Clean Code (Explicit Thresholds)
-
-| Metric | Book Quote | Agile | Growth | Enterprise |
-|--------|------------|-------|--------|------------|
-| **Function Length** | *"hardly ever be 20 lines"* | ≤ 50 | ≤ 30 | ≤ 20 |
-| **Parameters** | *"three should be avoided"* | ≤ 5 | ≤ 3 | ≤ 2 |
-| **Nesting Depth** | *"one or two indent levels"* | ≤ 4 | ≤ 3 | ≤ 2 |
-
-### From The Pragmatic Programmer
-
-| Principle | Application | Agile | Growth | Enterprise |
-|-----------|-------------|-------|--------|------------|
-| **Small Steps** | Commit/PR size | ≤ 500 | ≤ 300 | ≤ 200 lines |
+| Metric | L1 | L2 | L3 | L4 | L5 |
+|--------|-----|-----|-----|-----|-----|
+| Function length | N/A | ≤80 | ≤50 | ≤30 | ≤20 |
+| Parameter count | N/A | ≤7 | ≤5 | ≤3 | ≤2 |
+| Nesting depth | N/A | ≤5 | ≤4 | ≤3 | ≤2 |
+| PR size (lines) | N/A | ≤800 | ≤500 | ≤300 | ≤200 |
+| Test coverage | N/A | 30% | 60% | 80% | 95% |
+| DRY tolerance (max repeats) | N/A | 4 | 3 | 2 | 1 |
 
 ---
 
@@ -264,8 +335,8 @@ Key principles: Dependency Rule, Screaming Architecture, Plugin Architecture
 
 | Smell | Rule | Detection |
 |-------|------|-----------|
-| Long Function | CC-20 | > 30-50 lines |
-| Too Many Params | CC-26 | > 3 parameters |
+| Long Function | CC-20 | Exceeds level threshold? (See Metrics Guidelines) |
+| Too Many Params | CC-26 | Exceeds level threshold? (See Metrics Guidelines) |
 | Magic Numbers | CC-175 | Unnamed constants |
 | Feature Envy | CC-164 | Using other class's data |
 | God Class | CA-8 | Multiple responsibilities |
@@ -277,10 +348,18 @@ Key principles: Dependency Rule, Screaming Architecture, Plugin Architecture
 
 ```
 pragmatic-clean-code-reviewer/
-├── SKILL.md              # Main skill (review workflow)
-├── reference-manual.md   # Complete 350+ rules reference
-├── README.md             # This file
-└── LICENSE               # MIT License
+├── SKILL.md                      # Main skill entry point
+├── README.md                     # This file
+├── LICENSE                       # MIT License
+└── references/                   # Detailed reference materials
+    ├── positioning.md            # 3+4+2 system + L1-L5 mapping
+    ├── principles-glossary.md    # YAGNI, KISS, DRY, SOLID, etc.
+    ├── principles-spectrum.md    # DRY vs WET spectrum guide
+    ├── pragmatic-programmer.md   # PP-1 to PP-100
+    ├── clean-code.md             # CC-1 to CC-202
+    ├── clean-architecture.md     # CA-1 to CA-48
+    ├── language-adjustments.md   # Language-specific rules
+    └── quick-lookup.md           # Symptom → Rule lookup
 ```
 
 ---

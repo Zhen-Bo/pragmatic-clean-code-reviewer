@@ -11,12 +11,11 @@
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
-  <a href="#project-types">Project Types</a> •
-  <a href="#rule-sources">Rule Sources</a> •
-  <a href="#license">License</a>
+  <a href="#features">Features</a> •
+  <a href="docs/project-positioning.md">Project Positioning</a> •
+  <a href="docs/rule-sources.md">Rule Sources</a>
 </p>
 
 ---
@@ -35,149 +34,21 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 ---
 
-## How It Works
-
-```mermaid
-flowchart TD
-    A[🚀 Start Review] --> B{📋 Ask Project Positioning}
-    B --> C[🚀 Agile]
-    B --> D[📈 Growth]
-    B --> E[🏢 Enterprise]
-
-    C --> F[Apply Relaxed Strictness]
-    D --> G[Apply Moderate Strictness]
-    E --> H[Apply Strict Strictness]
-
-    F --> I[🔍 Identify Language Paradigm]
-    G --> I
-    H --> I
-
-    I --> J[📝 Run 15-Point Checklist]
-    J --> K{Issues Found?}
-
-    K -->|Yes| L[📚 Consult Reference Manual]
-    K -->|No| M[✅ Ready to Merge]
-
-    L --> N[📋 Generate Report with Citations]
-    N --> O{Verdict}
-
-    O -->|Critical| P[🚫 Major Rework Needed]
-    O -->|Important| Q[⚠️ Needs Fixes]
-    O -->|Minor Only| M
-```
-
-### Review Steps
-
-| Step | Action | Purpose |
-|------|--------|---------|
-| 1️⃣ | Ask project positioning | Calibrate strictness level |
-| 2️⃣ | Identify language paradigm | Adjust OOP-centric rules |
-| 3️⃣ | Run 15-point checklist | Systematic code evaluation |
-| 4️⃣ | Consult reference manual | Look up detailed rules (350+) |
-| 5️⃣ | Generate report | Cite rules, prioritize issues |
-
----
-
-## Features
-
-### 🎯 Project-Aware Strictness
-
-Before each review, the skill asks about your project's positioning and adjusts its strictness accordingly:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  What is the project's positioning?                          │
-│                                                              │
-│  1. Agile (MVP)    → Relaxed   (Ship it if it works)         │
-│  2. Growth         → Moderate  (Balance speed & quality)     │
-│  3. Enterprise     → Strict    (Think of maintainers 5y+)    │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### ✅ 15-Point Review Checklist
-
-Quick but comprehensive review covering:
-
-| Category | Checks |
-|----------|--------|
-| **Correctness** | Logic, boundaries, security |
-| **Readability** | Naming, function size, comments |
-| **Architecture** | SRP, DRY, dependency direction |
-| **Testing** | Coverage, independence |
-| **Advanced** | Concurrency, security, resources, performance |
-
-### 📋 Standardized Reporting
-
-Every review produces a consistent, visually clear report:
-
-```markdown
-## 📋 Code Review Report
-
-**Project Positioning:** Growth
-**Review Scope:** src/services/*.ts
-
-### 🔴 Critical Issues (Must Fix)
-- [auth.ts:45] SQL injection vulnerability (PP-72)
-
-### 🟡 Important Issues (Should Fix)
-- [user.ts:120] Function exceeds 50 lines (CC-20)
-
-### 🔵 Minor Issues (Nice to Have)
-- [utils.ts:33] Magic number should be named constant (CC-175)
-
-### ✅ Strengths
-- Good separation of concerns
-- Consistent naming conventions
-
-### 📝 Verdict
-⚠️ Needs fixes before merge
-```
-
-### 🔖 Rule Citation System
-
-Every issue references its source rule for learning and dispute resolution:
-
-| Prefix | Source |
-|--------|--------|
-| **PP-##** | The Pragmatic Programmer |
-| **CC-##** | Clean Code |
-| **CA-##** | Clean Architecture |
-
-### 🌐 Language-Aware Review
-
-Rules are adjusted based on programming language paradigm:
-
-| Paradigm | Languages | Applicability |
-|----------|-----------|---------------|
-| Pure OOP | Java, C# | ✅ Full |
-| Multi-paradigm | TypeScript, Python, Kotlin | ⚠️ Adjusted |
-| Functional | Haskell, Elixir, F# | ⚠️ Limited |
-| Systems | Rust, Go, Zig | ⚠️ Different patterns |
-
-For unknown languages, the skill will ask about paradigm or search for characteristics.
-
----
-
 ## Installation
 
-### For Claude Code
+### Quick Install
 
-```bash
-# Option 1: Clone directly to skills directory
-git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
-  ~/.claude/skills/pragmatic-clean-code-reviewer
+| Tool | Command |
+|------|---------|
+| **Claude Code** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.claude/skills/pragmatic-clean-code-reviewer` |
+| **OpenCode** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.config/opencode/skills/pragmatic-clean-code-reviewer` |
+| **Codex** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.codex/skills/pragmatic-clean-code-reviewer` |
 
-# Option 2: Manual copy
-mkdir -p ~/.claude/skills/pragmatic-clean-code-reviewer
-cp SKILL.md reference-manual.md ~/.claude/skills/pragmatic-clean-code-reviewer/
-```
+### From GitHub Release
 
-### For Codex
-
-```bash
-git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
-  ~/.codex/skills/pragmatic-clean-code-reviewer
-```
+1. Go to [Releases](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/releases)
+2. Download the latest `.skill` or `.zip` file
+3. Extract to your skills directory (see table above)
 
 ---
 
@@ -194,82 +65,58 @@ git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git \
 - *"Review my code for code smells"*
 - *"Check if this PR is ready to merge"*
 - *"Audit the architecture of this module"*
-- *"Is this code clean enough?"*
 
 ---
 
-## Project Types
+## Features
 
-| Type | Goal | Strictness | Typical Use Cases |
-|------|------|------------|-------------------|
-| **🚀 Agile** | Validate fast | ★☆☆☆☆ | MVP, hackathon, POC |
-| **📈 Growth** | Scale smart | ★★★☆☆ | Post-Series B, growing teams |
-| **🏢 Enterprise** | Stability first | ★★★★★ | Finance, medical, government |
+| Feature | Description |
+|---------|-------------|
+| 🎯 **3+4+2 Positioning System** | Questionnaire determines L1-L5 strictness |
+| 🏷️ **Five Strictness Levels** | From L1 (Lab) to L5 (Critical) |
+| ✅ **15-Point Checklist** | Systematic code evaluation |
+| 📋 **Standardized Reports** | Clear, consistent output format |
+| 🔖 **Rule Citations** | Every issue references PP/CC/CA rules |
+| 🌐 **Language-Aware** | Adjusts rules for different paradigms |
 
-### Strictness Matrix
-
-| Check | Agile | Growth | Enterprise |
-|-------|-------|--------|------------|
-| Functional Correctness | ★★★★★ | ★★★★★ | ★★★★★ |
-| Error Handling | ★★ | ★★★ | ★★★★★ |
-| Naming & Readability | ★★★ | ★★★★ | ★★★★★ |
-| Architecture (SRP/DIP) | ★ | ★★★ | ★★★★★ |
-| Testing | ★★ | ★★★★ | ★★★★★ |
+👉 **[See detailed features →](docs/features.md)**
 
 ---
 
-## Rule Sources
+## Quick Reference
 
-### 📗 The Pragmatic Programmer (PP-1 to PP-100)
+### Strictness Levels
 
-> *"Care about your craft. Think about your work."*
+| Level | Name | Key Question |
+|-------|------|--------------|
+| **L1** | 🧪 Lab | Does it run? |
+| **L2** | 🛠️ Tool | Understandable next month? |
+| **L3** | 🤝 Team | Can teammates take over? |
+| **L4** | 🚀 Infra | Others suffer if broken? |
+| **L5** | 🏛️ Critical | Can it pass audit? |
 
-Key principles: DRY, ETC (Easy To Change), Tracer Bullets, Design by Contract
+👉 **[Full positioning guide →](docs/project-positioning.md)**
 
-### 📘 Clean Code (CC-1 to CC-202)
+### Rule Prefixes
 
-> *"Clean code reads like well-written prose."*
+| Prefix | Source |
+|--------|--------|
+| **PP-##** | The Pragmatic Programmer |
+| **CC-##** | Clean Code |
+| **CA-##** | Clean Architecture |
 
-Key principles: Small functions, meaningful names, no side effects, SOLID
-
-### 📙 Clean Architecture (CA-1 to CA-48)
-
-> *"The goal of software architecture is to minimize human resources."*
-
-Key principles: Dependency Rule, Screaming Architecture, Plugin Architecture
-
----
-
-## Metrics Guidelines (Soft Reference)
-
-> **These are conversation starters, not hard gates.** A clear 60-line function beats three confusing 20-line functions.
-
-### From Clean Code (Explicit Thresholds)
-
-| Metric | Book Quote | Agile | Growth | Enterprise |
-|--------|------------|-------|--------|------------|
-| **Function Length** | *"hardly ever be 20 lines"* | ≤ 50 | ≤ 30 | ≤ 20 |
-| **Parameters** | *"three should be avoided"* | ≤ 5 | ≤ 3 | ≤ 2 |
-| **Nesting Depth** | *"one or two indent levels"* | ≤ 4 | ≤ 3 | ≤ 2 |
-
-### From The Pragmatic Programmer
-
-| Principle | Application | Agile | Growth | Enterprise |
-|-----------|-------------|-------|--------|------------|
-| **Small Steps** | Commit/PR size | ≤ 500 | ≤ 300 | ≤ 200 lines |
+👉 **[Full rule sources →](docs/rule-sources.md)**
 
 ---
 
-## Code Smells Quick Reference
+## Documentation
 
-| Smell | Rule | Detection |
-|-------|------|-----------|
-| Long Function | CC-20 | > 30-50 lines |
-| Too Many Params | CC-26 | > 3 parameters |
-| Magic Numbers | CC-175 | Unnamed constants |
-| Feature Envy | CC-164 | Using other class's data |
-| God Class | CA-8 | Multiple responsibilities |
-| Train Wreck | CC-81 | `a.b().c().d()` chains |
+| Document | Description |
+|----------|-------------|
+| [Features](docs/features.md) | Detailed feature explanations |
+| [Project Positioning](docs/project-positioning.md) | 3+4+2 system & L1-L5 mapping |
+| [Metrics & Code Smells](docs/metrics.md) | Thresholds and exemptions |
+| [Rule Sources](docs/rule-sources.md) | Book summaries and key principles |
 
 ---
 
@@ -277,10 +124,19 @@ Key principles: Dependency Rule, Screaming Architecture, Plugin Architecture
 
 ```
 pragmatic-clean-code-reviewer/
-├── SKILL.md              # Main skill (review workflow)
-├── reference-manual.md   # Complete 350+ rules reference
-├── README.md             # This file
-└── LICENSE               # MIT License
+├── SKILL.md                # Main skill (for AI)
+├── README.md               # This file
+├── CHANGELOG.md            # Release history
+├── docs/                   # Detailed documentation (for humans)
+│   ├── features.md
+│   ├── project-positioning.md
+│   ├── metrics.md
+│   └── rule-sources.md
+└── references/             # Rule references (for AI)
+    ├── clean-code.md
+    ├── clean-architecture.md
+    ├── pragmatic-programmer.md
+    └── ...
 ```
 
 ---
@@ -290,7 +146,7 @@ pragmatic-clean-code-reviewer/
 Contributions are welcome! Please feel free to:
 
 - 🐛 Report issues
-- 💡 Suggest new rules or improvements
+- 💡 Suggest improvements
 - 🔧 Submit pull requests
 
 ---

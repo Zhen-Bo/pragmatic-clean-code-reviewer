@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0
+
+### Changed
+
+- **Expanded Description Triggers**: Added more natural language triggers ("is this code good?", "check code quality", "ready to merge?", "technical debt", "code smell", "best practices", "clean up code", "refactor review") to improve skill discoverability
+- **Leaner SKILL.md**: Moved detailed Strictness Matrix and Metric Thresholds tables to `references/positioning.md`, keeping only quick reference in main skill file (359 → 343 lines)
+- **Progressive Disclosure**: SKILL.md now references `positioning.md` for complete matrices, following skill-creator best practices
+
 ## 1.1.0
 
 ### Added

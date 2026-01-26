@@ -1,12 +1,14 @@
 ---
 name: pragmatic-clean-code-reviewer
-version: 1.1.0
+version: 1.2.0
 description: >
   Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer 
   principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or 
   quality issues, (3) auditing architecture decisions, (4) preparing code for merge, 
   (5) refactoring existing code, or (6) checking adherence to SOLID, DRY, YAGNI, KISS principles.
   Features a 3+4+2 questionnaire system to calibrate strictness from L1 (lab) to L5 (critical).
+  Also triggers on: "is this code good?", "check code quality", "ready to merge?", 
+  "technical debt", "code smell", "best practices", "clean up code", "refactor review".
 ---
 
 # Pragmatic Clean Code Reviewer
@@ -82,31 +84,14 @@ Strict code review following Clean Code, Clean Architecture, and The Pragmatic P
 
 ---
 
-## Strictness Matrix
+## Strictness Matrix & Metric Thresholds
 
-| Check Item | L1 | L2 | L3 | L4 | L5 |
-|------------|----|----|----|----|-----|
-| Functional correctness | ★★★ | ★★★★ | ★★★★★ | ★★★★★ | ★★★★★ |
-| Error handling | ★ | ★★ | ★★★ | ★★★★ | ★★★★★ |
-| Naming & readability | ★ | ★★★ | ★★★★ | ★★★★★ | ★★★★★ |
-| Architecture design | ☆ | ★ | ★★★ | ★★★★★ | ★★★★★ |
-| Test coverage | ☆ | ★ | ★★★ | ★★★★ | ★★★★★ |
-| API stability | ☆ | ☆ | ★★ | ★★★★★ | ★★★★★ |
-| Documentation | ☆ | ★ | ★★ | ★★★★ | ★★★★★ |
-| Security | ☆ | ★ | ★★ | ★★★ | ★★★★★ |
+**Quick reference:**
+- Function length: L2(≤80) → L3(≤50) → L4(≤30) → L5(≤20)
+- Parameter count: L2(≤7) → L3(≤5) → L4(≤3) → L5(≤2)
+- Test coverage: L2(30%) → L3(60%) → L4(80%) → L5(95%)
 
----
-
-## Metric Thresholds
-
-| Metric | L1 | L2 | L3 | L4 | L5 |
-|--------|-----|-----|-----|-----|-----|
-| Function length | N/A | ≤80 | ≤50 | ≤30 | ≤20 |
-| Parameter count | N/A | ≤7 | ≤5 | ≤3 | ≤2 |
-| Nesting depth | N/A | ≤5 | ≤4 | ≤3 | ≤2 |
-| PR size (lines) | N/A | ≤800 | ≤500 | ≤300 | ≤200 |
-| Test coverage | N/A | 30% | 60% | 80% | 95% |
-| DRY tolerance (max repeats) | N/A | 4 | 3 | 2 | 1 |
+**For complete matrices:** See [positioning.md](references/positioning.md#strictness-matrix)
 
 ### ⚠️ Measurement Rules (MUST follow)
 

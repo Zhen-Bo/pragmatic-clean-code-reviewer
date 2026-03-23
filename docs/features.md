@@ -58,28 +58,35 @@ Every review produces a consistent, visually clear report with detailed rule exp
 **Review Scope:** src/services/*.ts
 
 ### 🔴 Critical Issues (Must Fix)
-- [auth.ts:45] SQL query built with string concatenation
-  - **Rule:** PP-72 (Keep It Simple and Minimize Attack Surfaces)
-  - **Principle:** String concatenation in SQL creates injection vulnerabilities
-  - **Suggestion:** Use parameterized queries
+- **[auth.ts:45] SQL query built with string concatenation**
+  - Rule: PP-72 (Keep It Simple and Minimize Attack Surfaces)
+  - Principle: String concatenation in SQL creates injection vulnerabilities
+  - Suggestion: Use parameterized queries
+  - Fix: Effort: Low | Benefit: High
 
 ### 🟡 Important Issues (Should Fix)
-- [user.ts:120] Function `processData` has 8 parameters
-  - **Rule:** CC-26 (Function Arguments)
-  - **Principle:** Many parameters increase cognitive load. L3 threshold is ≤5.
-  - **Suggestion:** Group into a parameter object
-
-### 🔵 Minor Issues (Nice to Have)
-- [utils.ts:33] Magic number `86400`
-  - **Rule:** CC-175 (Replace Magic Numbers with Named Constants)
-
-### ✅ Strengths
-- Good separation of concerns
-- Consistent naming conventions
+- **[user.ts:120] Function `processData` has 8 parameters**
+  - Rule: CC-26 (Function Arguments)
+  - Principle: Many parameters increase cognitive load. L3 threshold is ≤5.
+  - Suggestion: Group into a parameter object
+  - Fix: Effort: Medium | Benefit: Low
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed
 ```
+
+## 🔧 Fix Effort & Benefit Analysis
+
+Each Critical and Important issue includes a Fix line showing repair difficulty and post-fix value, helping teams decide fix order without changing severity:
+
+```
+- Fix: Effort: Low | Benefit: High
+```
+
+- **Effort**: Low (< 30 min) / Medium (30 min - 4 h) / High (> 4 h)
+- **Benefit**: Low (edge case, minor) / Medium (moderate) / High (hot path, severe)
+
+Severity is never downgraded by these values — a Critical issue stays Critical regardless of Effort or Benefit.
 
 ## 🔖 Rule Citation System
 
@@ -123,10 +130,11 @@ flowchart TD
     K -->|Yes| L[📚 Consult References]
     K -->|No| M[✅ Ready to Merge]
 
-    L --> N[📋 Generate Report]
+    L --> L2[🔧 Assess Fix Effort & Benefit]
+    L2 --> N[📋 Generate Report]
     N --> O{Verdict}
 
     O -->|Critical| P[🚫 Major Rework]
     O -->|Important| Q[⚠️ Needs Fixes]
-    O -->|Minor Only| M
+    O -->|Clean| M
 ```

@@ -24,7 +24,7 @@ Before reviewing, identify the language and its primary paradigm:
 | **Multi-paradigm** | TypeScript, Python, Kotlin, Scala | ⚠️ Adjust for FP patterns |
 | **Functional-first** | Haskell, Elixir, Clojure, F#, Elm | ⚠️ Many OOP rules don't apply |
 | **Systems/Ownership** | Rust, Zig | ⚠️ Different patterns |
-| **Procedural** | C, Go | ⚠️ No classes, different idioms |
+| **Procedural/Composition** | C, Go | ⚠️ No classes; Go adds interfaces + embedding |
 
 ---
 
@@ -225,6 +225,8 @@ trait Drawable {
 ## Procedural Languages
 
 ### Go
+
+> Go is listed under Procedural but has rich interface-based polymorphism (`io.Reader`, `error`), struct embedding for composition, and first-class concurrency primitives (goroutines/channels). Apply adjustments with Go's unique "composition over inheritance" philosophy in mind.
 
 | Rule | Adjustment | Rationale |
 |------|------------|-----------|

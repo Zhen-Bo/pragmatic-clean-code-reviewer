@@ -226,3 +226,27 @@ Q3: How critical? (2 options)
         │    → L1, L2, L3, L4, L5 │
         └─────────────────────────┘
 ```
+
+---
+
+## Fix Effort & Benefit
+
+For each Critical and Important issue, assess two dimensions to help teams prioritize fix order. These dimensions are supplementary information — they never change the severity of an issue.
+
+### Effort (how hard to fix)
+
+| Rating | Description | Examples |
+|--------|-------------|----------|
+| **Low** | A few lines changed, < 30 min | Swap string concat for parameterized query, add input validation, rename variable |
+| **Medium** | Moderate refactor, 30 min - 4 h | Extract parameter object, split function, add error handling layer |
+| **High** | Architectural change or wide-reaching modification, > 4 h | Redesign module boundaries, change data flow, replace framework component |
+
+### Benefit (value gained after fixing)
+
+Benefit combines **trigger frequency** (how often users hit the issue) and **impact scope** (how bad it is when triggered).
+
+| Rating | Trigger Frequency | Impact Scope | Examples |
+|--------|-------------------|--------------|----------|
+| **High** | Hot path / every request | Data loss, security breach, full outage | SQL injection on login endpoint, null pointer in request handler |
+| **Medium** | Common but not every request, OR edge case + severe | Feature malfunction, partial user impact | Missing validation on settings page, race condition under load |
+| **Low** | Edge case / specific conditions | UI glitch, degraded experience | Parameter count smell in internal helper, naming issue in rarely-called function |

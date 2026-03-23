@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0
+
+### Added
+
+- **Fix Effort & Benefit Analysis**: Each Critical and Important issue includes `Fix: Effort: [L/M/H] | Benefit: [L/M/H]` with step-by-step reasoning guidance to prevent Medium/Medium defaults
+- **Severity Classification**: Explicit 2-tier criteria table (Critical vs Important) with clear definitions and examples
+- **Review Workflow**: Explicit 8-step sequence (Calibrate → Scope → Language → Review → Classify → Assess → Report → Verdict)
+- **Verdict Criteria**: Deterministic "first matching condition" table — same inputs always produce same verdict
+- **L3 Fallback**: When user skips positioning, defaults to L3 (Team) with note in report header
+- **When to Load References**: Routing table for lazy-loading reference files by context
+- **Empty Section Guidance**: Empty severity sections are omitted entirely from the report
+- **Expanded Trigger Phrases**: Added "review this PR", "PR review", "code review", "pre-merge check", "code audit", "is this production-ready?", "find bugs", "look at my code", "check for issues"
+
+### Changed
+
+- **Report Formatting**: Bold only on issue title lines; sub-item labels (Rule, Principle, Suggestion, Fix) are now plain text for cleaner TUI readability
+- **Go Language**: Enriched description — noted interface-based polymorphism, struct embedding, composition philosophy
+- **Paradigm Labels**: "Systems" → "Systems/Composition", "Procedural" → "Procedural/Composition"
+
+### Removed
+
+- **Minor Issues tier (🔵)**: Consolidated to 2-tier severity (Critical + Important). Below-threshold items are not reported — if it's not worth actioning, omit it entirely
+- **Strengths section (✅)**: Removed from report template, example, and workflow. Code review is purely problem-focused — no AI sycophancy
+- **"Common Mistakes to Avoid" section**: Guidance integrated into workflow and reference loading table
+- **"The Bottom Line" section**: Redundant with the explicit Review Workflow
+- **Component Principles inline table**: Moved to reference link (`principles-glossary.md`)
+
 ## 1.2.0
 
 ### Changed

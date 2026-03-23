@@ -76,6 +76,8 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 | 🏷️ **Five Strictness Levels** | From L1 (Lab) to L5 (Critical) |
 | ✅ **15-Point Checklist** | Systematic code evaluation |
 | 📋 **Standardized Reports** | Clear, consistent output format |
+| 🔧 **Fix Effort & Benefit** | Effort/Benefit analysis with reasoning guidance |
+| 📝 **8-Step Workflow** | Explicit review sequence with deterministic verdict |
 | 🔖 **Rule Citations** | Every issue references PP/CC/CA rules |
 | 🌐 **Language-Aware** | Adjusts rules for different paradigms |
 

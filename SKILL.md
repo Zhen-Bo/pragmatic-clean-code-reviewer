@@ -1,14 +1,16 @@
 ---
 name: pragmatic-clean-code-reviewer
-version: 1.2.0
+version: 1.3.0
 description: >
-  Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer 
-  principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or 
-  quality issues, (3) auditing architecture decisions, (4) preparing code for merge, 
+  Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer
+  principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or
+  quality issues, (3) auditing architecture decisions, (4) preparing code for merge,
   (5) refactoring existing code, or (6) checking adherence to SOLID, DRY, YAGNI, KISS principles.
   Features a 3+4+2 questionnaire system to calibrate strictness from L1 (lab) to L5 (critical).
-  Also triggers on: "is this code good?", "check code quality", "ready to merge?", 
-  "technical debt", "code smell", "best practices", "clean up code", "refactor review".
+  Also triggers on: "is this code good?", "check code quality", "ready to merge?",
+  "technical debt", "code smell", "best practices", "clean up code", "refactor review",
+  "review this PR", "PR review", "code review", "pre-merge check", "code audit",
+  "is this production-ready?", "find bugs", "look at my code", "check for issues".
 ---
 
 # Pragmatic Clean Code Reviewer
@@ -70,6 +72,8 @@ Strict code review following Clean Code, Clean Architecture, and The Pragmatic P
 
 **For detailed explanations:** See [positioning.md](references/positioning.md)
 
+> **Fallback:** If the user skips positioning or says "just review it," default to **L3 (Team)** and note in the report header: `**Project Positioning:** L3 Team (default — user skipped calibration)`.
+
 ---
 
 ## Level Definitions
@@ -81,6 +85,25 @@ Strict code review following Clean Code, Clean Architecture, and The Pragmatic P
 | **L3** | 🤝 Team | Can teammates take over? |
 | **L4** | 🚀 Infra | Will others suffer if I break it? |
 | **L5** | 🏛️ Critical | Can it pass audit? |
+
+---
+
+## Review Workflow
+
+Follow this sequence for every review:
+
+1. **Calibrate** — Ask Q1/Q2/Q3 → determine strictness level (or apply L3 fallback)
+2. **Scope** — Confirm what to review: PR diff (changed files + immediate context), module, or specific files. If PR exceeds the level's size limit, flag it as an issue
+3. **Language check** — Identify paradigm; read [language-adjustments.md](references/language-adjustments.md) if language is NOT Java/C#
+4. **Review** — Walk through the 15-Point Checklist against the code
+5. **Classify** — Assign severity to each finding (see Severity Classification below)
+6. **Assess** — Add Effort/Benefit to Critical and Important issues
+7. **Report** — Generate report using the template
+8. **Verdict** — Apply verdict criteria to reach conclusion
+
+> **Review type adjustments:** For bug fixes, emphasize correctness and regression tests. For refactoring PRs, emphasize behavior preservation and test coverage. For new features, emphasize design and architecture. For test code, relax DRY tolerance.
+
+> **Priority order:** security > correctness > design > style. Rules serve the code, not vice versa.
 
 ---
 
@@ -128,7 +151,7 @@ Before reviewing, identify the language paradigm:
 | Pure OOP | Java, C# | ✅ Full |
 | Multi-paradigm | TypeScript, Python, Kotlin | ⚠️ Adjust |
 | Functional | Haskell, Elixir, F# | ⚠️ Many rules don't apply |
-| Systems | Rust, Go | ⚠️ Different patterns |
+| Systems/Composition | Rust, Go | ⚠️ Different patterns |
 
 **For language-specific adjustments:** See [language-adjustments.md](references/language-adjustments.md)
 
@@ -212,9 +235,25 @@ These should be caught by Linter/Formatter:
 
 ---
 
+## Severity Classification
+
+| Level | Criteria | Examples |
+|-------|----------|---------|
+| 🔴 **Critical** | Security vulnerabilities, data loss/corruption risks, logic bugs affecting correctness, crashes on production paths | SQL injection, unvalidated auth, off-by-one on financial calculation |
+| 🟡 **Important** | Design principle violations, metric threshold breaches, maintainability risks, missing tests for critical paths | SRP violation, function with 10 params at L3, no test for core logic |
+
+**Rules:**
+- Security issues are **always** Critical regardless of project level
+- Severity is determined by the issue's *nature*, not by the effort to fix it
+- Items below Important threshold are not reported — if an issue isn't worth actioning, omit it entirely
+
+---
+
 ## Report Format
 
 > **Before reporting:** Apply Measurement Rules exemptions. Do NOT include exempt items (e.g., pure data builders exceeding line limits) in any issue category—omit them entirely.
+
+> **Empty sections:** If a severity tier has no issues, omit that section entirely from the report. Do not output a section header with "None" or "No issues found."
 
 ```markdown
 ## 📋 Code Review Report
@@ -223,27 +262,59 @@ These should be caught by Linter/Formatter:
 **Review Scope:** [files/commits reviewed]
 
 ### 🔴 Critical Issues (Must Fix)
-- [file:line] Issue description
-  - **Rule:** XX-## (Rule Name)
-  - **Principle:** Brief explanation of why this matters
-  - **Suggestion:** How to fix it
+- **[file:line] Issue description**
+  - Rule: XX-## (Rule Name)
+  - Principle: Brief explanation of why this matters
+  - Suggestion: How to fix it
+  - Fix: Effort: [Low/Medium/High] | Benefit: [Low/Medium/High]
 
 ### 🟡 Important Issues (Should Fix)
-- [file:line] Issue description
-  - **Rule:** XX-## (Rule Name)
-  - **Principle:** Brief explanation of why this matters
-  - **Suggestion:** How to fix it
-
-### 🔵 Minor Issues (Nice to Have)
-- [file:line] Issue description
-  - **Rule:** XX-## (Rule Name)
-
-### ✅ Strengths
-- What's done well
+- **[file:line] Issue description**
+  - Rule: XX-## (Rule Name)
+  - Principle: Brief explanation of why this matters
+  - Suggestion: How to fix it
+  - Fix: Effort: [Low/Medium/High] | Benefit: [Low/Medium/High]
 
 ### 📝 Verdict
 [✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
 ```
+
+### Verdict Criteria
+
+> **Apply the first matching condition from top to bottom.**
+
+| Verdict | Condition |
+|---------|-----------|
+| 🚫 Major rework needed | ≥3 Critical issues OR fundamental design problems (dependency cycles, wrong architectural layer, framework-coupled domain logic) |
+| ⚠️ Needs fixes | Any Critical issue OR >2 Important issues |
+| ✅ Ready to merge | Zero Critical AND ≤2 Important issues |
+
+### Fix Effort & Benefit (Critical/Important only)
+
+Add a Fix line to each Critical and Important issue to help teams prioritize fix order.
+
+- **Effort** — how hard to fix
+  - Low: a few lines, < 30 min
+  - Medium: moderate refactor, 30 min - 4 h
+  - High: architectural change or wide-reaching modification, > 4 h
+- **Benefit** — value gained after fixing (trigger frequency × impact scope)
+  - High: hot path + severe consequence (data loss, security breach, outage)
+  - Medium: common path + moderate impact, or edge case + severe consequence
+  - Low: edge case + minor impact (UI glitch, degraded experience)
+
+**Before assigning ratings, reason through these questions:**
+
+For Effort:
+- How many files need changes? (1 file = likely Low, 3+ files = likely Medium+)
+- Does the fix cross module/layer boundaries? (yes = Medium+)
+- Does existing test coverage need updating? (significant test changes = add one level)
+
+For Benefit:
+- Is this code on a hot path (called frequently)? (yes = High trigger frequency)
+- What's the worst-case consequence if this issue triggers? (data loss/security = High impact)
+- Can users work around it? (no workaround = higher impact)
+
+If uncertain, default to the **more extreme** rating (Low or High), not Medium. Medium should be a deliberate choice, not a fallback.
 
 ### Report Example
 
@@ -254,34 +325,45 @@ These should be caught by Linter/Formatter:
 **Review Scope:** src/services/user.ts, src/utils/helpers.ts
 
 ### 🔴 Critical Issues (Must Fix)
-- [user.ts:45] SQL query built with string concatenation
-  - **Rule:** PP-72 (Keep It Simple and Minimize Attack Surfaces)
-  - **Principle:** String concatenation in SQL queries creates injection vulnerabilities
-  - **Suggestion:** Use parameterized queries: `db.query('SELECT * FROM users WHERE id = ?', [userId])`
+- **[user.ts:45] SQL query built with string concatenation**
+  - Rule: PP-72 (Keep It Simple and Minimize Attack Surfaces)
+  - Principle: String concatenation in SQL queries creates injection vulnerabilities
+  - Suggestion: Use parameterized queries: `db.query('SELECT * FROM users WHERE id = ?', [userId])`
+  - Fix: Effort: Low | Benefit: High
 
 ### 🟡 Important Issues (Should Fix)
-- [helpers.ts:120] Function `processUserData` has 8 parameters
-  - **Rule:** CC-26 (Function Arguments) + CC-147 (Too Many Arguments)
-  - **Principle:** Many parameters increase cognitive load and make testing difficult. L3 threshold is ≤5.
-  - **Suggestion:** Group related parameters into a `UserDataOptions` object
+- **[helpers.ts:120] Function `processUserData` has 8 parameters**
+  - Rule: CC-26 (Function Arguments) + CC-147 (Too Many Arguments)
+  - Principle: Many parameters increase cognitive load and make testing difficult. L3 threshold is ≤5.
+  - Suggestion: Group related parameters into a `UserDataOptions` object
+  - Fix: Effort: Medium | Benefit: Low
 
-- [user.ts:200] Duplicate validation logic (3rd occurrence)
-  - **Rule:** PP-15 (DRY) + CC-37 (Don't Repeat Yourself)
-  - **Principle:** L3 allows max 3 repetitions. This is the 3rd occurrence—consider extracting.
-  - **Suggestion:** Extract to `validateUserInput(input)` function in utils
-
-### 🔵 Minor Issues (Nice to Have)
-- [helpers.ts:55] Magic number `86400`
-  - **Rule:** CC-175 (Replace Magic Numbers with Named Constants)
-
-### ✅ Strengths
-- Clear separation between data access and business logic
-- Consistent error handling pattern
-- Good test coverage on core functions
+- **[user.ts:200] Duplicate validation logic (3rd occurrence)**
+  - Rule: PP-15 (DRY) + CC-37 (Don't Repeat Yourself)
+  - Principle: L3 allows max 3 repetitions. This is the 3rd occurrence—consider extracting.
+  - Suggestion: Extract to `validateUserInput(input)` function in utils
+  - Fix: Effort: Low | Benefit: Medium
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed before merge
 ```
+
+---
+
+## When to Load References
+
+| Reference File | Load When |
+|----------------|-----------|
+| [language-adjustments.md](references/language-adjustments.md) | Language is NOT Java/C# — always check for non-OOP paradigms |
+| [positioning.md](references/positioning.md) | User wants detailed level explanation or edge-case mapping |
+| [principles-spectrum.md](references/principles-spectrum.md) | Encountering DRY/YAGNI/abstraction-timing edge cases |
+| [quick-lookup.md](references/quick-lookup.md) | Symptom spotted that isn't covered by the 15-point checklist |
+| [clean-code.md](references/clean-code.md) | Need to cite or explain a **CC-##** rule in detail |
+| [clean-architecture.md](references/clean-architecture.md) | Need to cite or explain a **CA-##** rule in detail |
+| [pragmatic-programmer.md](references/pragmatic-programmer.md) | Need to cite or explain a **PP-##** rule in detail |
+| [principles-glossary.md](references/principles-glossary.md) | Need full definition of SOLID, LoD, CQS, or component principles |
+
+**Do NOT load all references at once.** Use the rule prefix (PP/CC/CA) to pick the right file.
 
 ---
 
@@ -305,39 +387,7 @@ These should be caught by Linter/Formatter:
 | SOLID | 5 Design Principles | CA-8~12 |
 | LoD | Law of Demeter | PP-46, CC-80 |
 
-### Component Principles (for packages/modules)
-
-| Acronym | Meaning | Rule |
-|---------|---------|------|
-| REP | Reuse/Release Equivalence | CA-14 |
-| CCP | Common Closure Principle | CA-15 |
-| CRP | Common Reuse Principle | CA-16 |
-| ADP | Acyclic Dependencies Principle | CA-18 |
-| SDP | Stable Dependencies Principle | CA-19 |
-| SAP | Stable Abstractions Principle | CA-20 |
-
-**For full glossary:** See [principles-glossary.md](references/principles-glossary.md)
+**Component Principles (REP, CCP, CRP, ADP, SDP, SAP):** See [principles-glossary.md](references/principles-glossary.md)
 
 **For DRY vs WET guidance:** See [principles-spectrum.md](references/principles-spectrum.md)
 
----
-
-## Common Mistakes to Avoid
-
-| Mistake | Why It's Wrong | Correct Approach |
-|---------|----------------|------------------|
-| Skipping positioning | Wrong strictness applied | Always ask Q1/Q2/Q3 first |
-| Treating metrics as gates | Clear 60-line fn > confusing 20-line ones | Metrics trigger discussion |
-| Ignoring language paradigm | OOP rules ≠ Rust/Go | Check language-adjustments first |
-| Reviewing formatting | Linters do this better | Focus on logic and design |
-| Citing rules without context | "CC-20" alone doesn't help | Add: "Function too long: consider extracting X" |
-| Missing forest for trees | All style issues but miss security | Priority: security > correctness > design > style |
-
----
-
-## The Bottom Line
-
-1. **Always calibrate:** Project level determines strictness
-2. **Cite rules:** Every issue references a rule code
-3. **Focus on logic:** Let machines handle formatting
-4. **Be pragmatic:** Rules serve the code, not vice versa

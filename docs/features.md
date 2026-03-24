@@ -62,29 +62,43 @@ Every review produces a consistent, visually clear report with detailed rule exp
   - Rule: PP-72 (Keep It Simple and Minimize Attack Surfaces)
   - Principle: String concatenation in SQL creates injection vulnerabilities
   - Suggestion: Use parameterized queries
-  - Fix: Effort: Low | Benefit: High
+  - Effort: Low
+    - Single file change, no cross-module impact
+  - Benefit: High
+    - Hot path -- every user query hits this code
+    - Data loss/breach risk if exploited
 
 ### 🟡 Important Issues (Should Fix)
 - **[user.ts:120] Function `processData` has 8 parameters**
   - Rule: CC-26 (Function Arguments)
   - Principle: Many parameters increase cognitive load. L3 threshold is ≤5.
   - Suggestion: Group into a parameter object
-  - Fix: Effort: Medium | Benefit: Low
+  - Effort: Medium
+    - Touches callers across 3 files
+    - Test updates needed for new signature
+  - Benefit: Low
+    - Internal utility, not on hot path
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed
 ```
 
-## 🔧 Fix Effort & Benefit Analysis
+## 🔧 Effort & Benefit Analysis
 
-Each Critical and Important issue includes a Fix line showing repair difficulty and post-fix value, helping teams decide fix order without changing severity:
+Each Critical and Important issue includes separate Effort and Benefit lines with nested reason bullets, showing repair difficulty and post-fix value to help teams decide fix order:
 
 ```
-- Fix: Effort: Low | Benefit: High
+- Effort: Low
+  - Single file change, no cross-module impact
+- Benefit: High
+  - Hot path -- every request hits this code
+  - Data loss risk if triggered
 ```
 
 - **Effort**: Low (< 30 min) / Medium (30 min - 4 h) / High (> 4 h)
 - **Benefit**: Low (edge case, minor) / Medium (moderate) / High (hot path, severe)
+
+Reason bullets derive from calibration questions: file count, cross-boundary impact, hot path frequency, worst-case consequence, and user workaround availability.
 
 Severity is never downgraded by these values — a Critical issue stays Critical regardless of Effort or Benefit.
 
@@ -130,7 +144,7 @@ flowchart TD
     K -->|Yes| L[📚 Consult References]
     K -->|No| M[✅ Ready to Merge]
 
-    L --> L2[🔧 Assess Fix Effort & Benefit]
+    L --> L2[🔧 Assess Effort & Benefit]
     L2 --> N[📋 Generate Report]
     N --> O{Verdict}
 

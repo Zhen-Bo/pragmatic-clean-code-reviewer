@@ -1,6 +1,6 @@
 ---
 name: pragmatic-clean-code-reviewer
-version: 1.3.0
+version: 1.3.1
 description: >
   Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer
   principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or
@@ -255,6 +255,8 @@ These should be caught by Linter/Formatter:
 
 > **Empty sections:** If a severity tier has no issues, omit that section entirely from the report. Do not output a section header with "None" or "No issues found."
 
+> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
+
 ```markdown
 ## 📋 Code Review Report
 
@@ -266,14 +268,31 @@ These should be caught by Linter/Formatter:
   - Rule: XX-## (Rule Name)
   - Principle: Brief explanation of why this matters
   - Suggestion: How to fix it
-  - Fix: Effort: [Low/Medium/High] | Benefit: [Low/Medium/High]
+  - Effort: [Low/Medium/High]
+    - [reason derived from effort questions below]
+  - Benefit: [Low/Medium/High]
+    - [reason derived from benefit questions below]
 
 ### 🟡 Important Issues (Should Fix)
 - **[file:line] Issue description**
   - Rule: XX-## (Rule Name)
   - Principle: Brief explanation of why this matters
   - Suggestion: How to fix it
-  - Fix: Effort: [Low/Medium/High] | Benefit: [Low/Medium/High]
+  - Effort: [Low/Medium/High]
+    - [reason derived from effort questions below]
+  - Benefit: [Low/Medium/High]
+    - [reason derived from benefit questions below]
+
+---
+
+- **[file:line] Issue description**
+  - Rule: XX-## (Rule Name)
+  - Principle: Brief explanation of why this matters
+  - Suggestion: How to fix it
+  - Effort: [Low/Medium/High]
+    - [reason derived from effort questions below]
+  - Benefit: [Low/Medium/High]
+    - [reason derived from benefit questions below]
 
 ### 📝 Verdict
 [✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
@@ -289,9 +308,9 @@ These should be caught by Linter/Formatter:
 | ⚠️ Needs fixes | Any Critical issue OR >2 Important issues |
 | ✅ Ready to merge | Zero Critical AND ≤2 Important issues |
 
-### Fix Effort & Benefit (Critical/Important only)
+### Effort & Benefit (Critical/Important only)
 
-Add a Fix line to each Critical and Important issue to help teams prioritize fix order.
+Add Effort and Benefit lines to each Critical and Important issue to help teams prioritize fix order. Each rating must include 1-3 nested bullet reasons derived from the questions below.
 
 - **Effort** — how hard to fix
   - Low: a few lines, < 30 min
@@ -316,6 +335,8 @@ For Benefit:
 
 If uncertain, default to the **more extreme** rating (Low or High), not Medium. Medium should be a deliberate choice, not a fallback.
 
+Express your reasoning as nested bullets under each rating line. Simple issues need 1 bullet; complex issues need 2-3 bullets. Reason bullets must derive from the questions above -- do not use generic justifications.
+
 ### Report Example
 
 ```markdown
@@ -329,20 +350,35 @@ If uncertain, default to the **more extreme** rating (Low or High), not Medium. 
   - Rule: PP-72 (Keep It Simple and Minimize Attack Surfaces)
   - Principle: String concatenation in SQL queries creates injection vulnerabilities
   - Suggestion: Use parameterized queries: `db.query('SELECT * FROM users WHERE id = ?', [userId])`
-  - Fix: Effort: Low | Benefit: High
+  - Effort: Low
+    - Single file change, no cross-module impact
+  - Benefit: High
+    - Hot path -- every user query hits this code
+    - Data loss/breach risk if exploited
 
 ### 🟡 Important Issues (Should Fix)
 - **[helpers.ts:120] Function `processUserData` has 8 parameters**
   - Rule: CC-26 (Function Arguments) + CC-147 (Too Many Arguments)
   - Principle: Many parameters increase cognitive load and make testing difficult. L3 threshold is ≤5.
   - Suggestion: Group related parameters into a `UserDataOptions` object
-  - Fix: Effort: Medium | Benefit: Low
+  - Effort: Medium
+    - Touches callers across 3 files
+    - Test updates needed for new signature
+  - Benefit: Low
+    - Internal utility, not on hot path
+    - Users unaffected functionally
+
+---
 
 - **[user.ts:200] Duplicate validation logic (3rd occurrence)**
   - Rule: PP-15 (DRY) + CC-37 (Don't Repeat Yourself)
-  - Principle: L3 allows max 3 repetitions. This is the 3rd occurrence—consider extracting.
+  - Principle: L3 allows max 3 repetitions. This is the 3rd occurrence -- consider extracting.
   - Suggestion: Extract to `validateUserInput(input)` function in utils
-  - Fix: Effort: Low | Benefit: Medium
+  - Effort: Low
+    - Extract to shared function, update 3 call sites in same module
+  - Benefit: Medium
+    - Common path -- validation runs on every user mutation
+    - Drift risk if logic diverges across copies
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed before merge

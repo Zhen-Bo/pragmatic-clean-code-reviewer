@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.1
+
+### Added
+
+- **Issue Separators**: `---` horizontal rules between issues within the same severity section for visual breathing room
+- **Strengths Suppression Whitelist**: Explicit allowed-sections-only instruction prevents LLM from generating praise under alternate headings
+- **Effort/Benefit Inline Rationale**: Each rating now includes nested bullet reasons derived from calibration questions (file count, cross-boundary, hot path, consequence, workaround)
+
+### Changed
+
+- **Effort/Benefit Format**: Replaced single-line `Fix: Effort: X | Benefit: Y` with separate `Effort:` and `Benefit:` lines, each with 1-3 nested reason bullets
+- **E/B Section Title**: Renamed from "Fix Effort & Benefit" to "Effort & Benefit" throughout
+
+### Removed
+
+- **Single-line Fix format**: `Fix: Effort: X | Benefit: Y` replaced by multi-line format with rationale
+
 ## 1.3.0
 
 ### Added

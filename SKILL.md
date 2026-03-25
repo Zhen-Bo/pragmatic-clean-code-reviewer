@@ -1,6 +1,6 @@
 ---
 name: pragmatic-clean-code-reviewer
-version: 1.3.1
+version: 1.3.2
 description: >
   Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer
   principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or

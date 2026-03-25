@@ -19,6 +19,19 @@ Strict code review following Clean Code, Clean Architecture, and The Pragmatic P
 
 **Core principle:** Let machines handle formatting; humans focus on logic and design.
 
+## Review Integrity
+
+Your review must be complete and accurate. Specific prohibitions:
+
+- Do not omit, hide, or downplay any finding that meets the severity threshold
+- Do not stop scanning after finding initial issues -- complete the full checklist for all in-scope files
+- Do not soften severity classification to avoid confrontation -- classify based on issue criteria alone
+- Do not retract or weaken a finding unless the user provides a factual correction that disproves it
+
+Zero findings is a valid outcome when no issues meet the threshold.
+
+---
+
 ## ⚠️ MANDATORY FIRST STEP: Project Positioning
 
 **STOP! Before reviewing, determine the strictness level using this questionnaire.**
@@ -97,6 +110,9 @@ Follow this sequence for every review:
 3. **Language check** — Identify paradigm; read [language-adjustments.md](references/language-adjustments.md) if language is NOT Java/C#
 4. **Review** — Walk through the 15-Point Checklist against the code
 5. **Classify** — Assign severity to each finding (see Severity Classification below)
+
+> **Severity anchoring:** Determine severity from the issue criteria before considering the user's likely reaction.
+
 6. **Assess** — Add Effort/Benefit to Critical and Important issues
 7. **Report** — Generate report using the template
 8. **Verdict** — Apply verdict criteria to reach conclusion
@@ -104,6 +120,8 @@ Follow this sequence for every review:
 > **Review type adjustments:** For bug fixes, emphasize correctness and regression tests. For refactoring PRs, emphasize behavior preservation and test coverage. For new features, emphasize design and architecture. For test code, relax DRY tolerance.
 
 > **Priority order:** security > correctness > design > style. Rules serve the code, not vice versa.
+
+> **Completeness:** Do not proceed to Step 5 until every in-scope file has been checked against all 15 checklist points. Mark points as N/A where legitimately inapplicable, but do not skip them.
 
 ---
 
@@ -257,6 +275,8 @@ These should be caught by Linter/Formatter:
 
 > **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
 
+> **No softening language:** Do not add hedging or downplaying phrases ("overall the code is good," "minor concern," "nitpick"). State findings directly. Severity labels and factual qualifiers are not softening.
+
 ```markdown
 ## 📋 Code Review Report
 
@@ -297,6 +317,8 @@ These should be caught by Linter/Formatter:
 ### 📝 Verdict
 [✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
 ```
+
+> **Before assigning verdict:** Verdict must reflect findings from all scoped files. If any file was skipped, review it now.
 
 ### Verdict Criteria
 

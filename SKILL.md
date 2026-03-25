@@ -121,7 +121,7 @@ Follow this sequence for every review:
 
 > **Priority order:** security > correctness > design > style. Rules serve the code, not vice versa.
 
-> **Completeness:** Do not proceed to Step 5 until every in-scope file has been checked against all 15 checklist points. Mark points as N/A where legitimately inapplicable, but do not skip them.
+> **Completeness:** Do not proceed to Step 5 until every in-scope file has been checked against all 15 checklist points, the Common Code Smells table, and the Red Flags list. Mark points as N/A where legitimately inapplicable, but do not skip them.
 
 ---
 

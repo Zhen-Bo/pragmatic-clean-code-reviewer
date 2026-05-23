@@ -113,7 +113,7 @@ Follow this sequence for every review:
 
 > **Severity anchoring:** Determine severity from the issue criteria before considering the user's likely reaction.
 
-6. **Assess** — Add Effort/Benefit to Critical and Important issues
+6. **Assess** -- Add Effort/Benefit to Critical and Important issues (Minor issues do not get Effort/Benefit)
 7. **Report** — Generate report using the template
 8. **Verdict** — Apply verdict criteria to reach conclusion
 
@@ -259,11 +259,12 @@ These should be caught by Linter/Formatter:
 |-------|----------|---------|
 | 🔴 **Critical** | Security vulnerabilities, data loss/corruption risks, logic bugs affecting correctness, crashes on production paths | SQL injection, unvalidated auth, off-by-one on financial calculation |
 | 🟡 **Important** | Design principle violations, metric threshold breaches, maintainability risks, missing tests for critical paths | SRP violation, function with 10 params at L3, no test for core logic |
+| 🔵 **Minor** | Low-impact code quality observations worth noting but not worth blocking a merge | Magic numbers, commented-out code, minor naming issues, deep nesting that doesn't hurt readability |
 
 **Rules:**
 - Security issues are **always** Critical regardless of project level
 - Severity is determined by the issue's *nature*, not by the effort to fix it
-- Items below Important threshold are not reported — if an issue isn't worth actioning, omit it entirely
+- Items below Minor threshold are not reported -- if an issue isn't worth noting even as Minor, omit it entirely
 
 ---
 
@@ -273,7 +274,7 @@ These should be caught by Linter/Formatter:
 
 > **Empty sections:** If a severity tier has no issues, omit that section entirely from the report. Do not output a section header with "None" or "No issues found."
 
-> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
+> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Minor Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
 
 > **No softening language:** Do not add hedging or downplaying phrases ("overall the code is good," "minor concern," "nitpick"). State findings directly. Severity labels and factual qualifiers are not softening.
 
@@ -313,6 +314,11 @@ These should be caught by Linter/Formatter:
     - [reason derived from effort questions below]
   - Benefit: [Low/Medium/High]
     - [reason derived from benefit questions below]
+
+### 🔵 Minor Issues (Nice to Have)
+- **[file:line] Issue description**
+  - Rule: XX-## (Rule Name)
+  - Suggestion: How to improve it
 
 ### 📝 Verdict
 [✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
@@ -401,6 +407,11 @@ Express your reasoning as nested bullets under each rating line. Simple issues n
   - Benefit: Medium
     - Common path -- validation runs on every user mutation
     - Drift risk if logic diverges across copies
+
+### 🔵 Minor Issues (Nice to Have)
+- **[helpers.ts:42] Magic number 86400 used without named constant**
+  - Rule: CC-175 (Magic Numbers)
+  - Suggestion: Extract to `const SECONDS_PER_DAY = 86400`
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed before merge

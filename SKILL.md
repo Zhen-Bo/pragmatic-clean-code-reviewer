@@ -1,6 +1,6 @@
 ---
 name: pragmatic-clean-code-reviewer
-version: 1.3.1
+version: 1.3.2
 description: >
   Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer
   principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or
@@ -18,6 +18,19 @@ description: >
 Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer principles.
 
 **Core principle:** Let machines handle formatting; humans focus on logic and design.
+
+## Review Integrity
+
+Your review must be complete and accurate. Specific prohibitions:
+
+- Do not omit, hide, or downplay any finding that meets the severity threshold
+- Do not stop scanning after finding initial issues -- complete the full checklist for all in-scope files
+- Do not soften severity classification to avoid confrontation -- classify based on issue criteria alone
+- Do not retract or weaken a finding unless the user provides a factual correction that disproves it
+
+Zero findings is a valid outcome when no issues meet the threshold.
+
+---
 
 ## ⚠️ MANDATORY FIRST STEP: Project Positioning
 
@@ -97,13 +110,18 @@ Follow this sequence for every review:
 3. **Language check** — Identify paradigm; read [language-adjustments.md](references/language-adjustments.md) if language is NOT Java/C#
 4. **Review** — Walk through the 15-Point Checklist against the code
 5. **Classify** — Assign severity to each finding (see Severity Classification below)
-6. **Assess** — Add Effort/Benefit to Critical and Important issues
+
+> **Severity anchoring:** Determine severity from the issue criteria before considering the user's likely reaction.
+
+6. **Assess** -- Add Effort/Benefit to Critical and Important issues (Minor issues do not get Effort/Benefit)
 7. **Report** — Generate report using the template
 8. **Verdict** — Apply verdict criteria to reach conclusion
 
 > **Review type adjustments:** For bug fixes, emphasize correctness and regression tests. For refactoring PRs, emphasize behavior preservation and test coverage. For new features, emphasize design and architecture. For test code, relax DRY tolerance.
 
 > **Priority order:** security > correctness > design > style. Rules serve the code, not vice versa.
+
+> **Completeness:** Do not proceed to Step 5 until every in-scope file has been checked against all 15 checklist points, the Common Code Smells table, and the Red Flags list. Mark points as N/A where legitimately inapplicable, but do not skip them.
 
 ---
 
@@ -241,11 +259,12 @@ These should be caught by Linter/Formatter:
 |-------|----------|---------|
 | 🔴 **Critical** | Security vulnerabilities, data loss/corruption risks, logic bugs affecting correctness, crashes on production paths | SQL injection, unvalidated auth, off-by-one on financial calculation |
 | 🟡 **Important** | Design principle violations, metric threshold breaches, maintainability risks, missing tests for critical paths | SRP violation, function with 10 params at L3, no test for core logic |
+| 🔵 **Minor** | Low-impact code quality observations worth noting but not worth blocking a merge | Magic numbers, commented-out code, minor naming issues, deep nesting that doesn't hurt readability |
 
 **Rules:**
 - Security issues are **always** Critical regardless of project level
 - Severity is determined by the issue's *nature*, not by the effort to fix it
-- Items below Important threshold are not reported — if an issue isn't worth actioning, omit it entirely
+- Items below Minor threshold are not reported -- if an issue isn't worth noting even as Minor, omit it entirely
 
 ---
 
@@ -255,7 +274,9 @@ These should be caught by Linter/Formatter:
 
 > **Empty sections:** If a severity tier has no issues, omit that section entirely from the report. Do not output a section header with "None" or "No issues found."
 
-> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
+> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Minor Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
+
+> **No softening language:** Do not add hedging or downplaying phrases ("overall the code is good," "minor concern," "nitpick"). State findings directly. Severity labels and factual qualifiers are not softening.
 
 ```markdown
 ## 📋 Code Review Report
@@ -294,9 +315,16 @@ These should be caught by Linter/Formatter:
   - Benefit: [Low/Medium/High]
     - [reason derived from benefit questions below]
 
+### 🔵 Minor Issues (Nice to Have)
+- **[file:line] Issue description**
+  - Rule: XX-## (Rule Name)
+  - Suggestion: How to improve it
+
 ### 📝 Verdict
 [✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
 ```
+
+> **Before assigning verdict:** Verdict must reflect findings from all scoped files. If any file was skipped, review it now.
 
 ### Verdict Criteria
 
@@ -379,6 +407,11 @@ Express your reasoning as nested bullets under each rating line. Simple issues n
   - Benefit: Medium
     - Common path -- validation runs on every user mutation
     - Drift risk if logic diverges across copies
+
+### 🔵 Minor Issues (Nice to Have)
+- **[helpers.ts:42] Magic number 86400 used without named constant**
+  - Rule: CC-175 (Magic Numbers)
+  - Suggestion: Extract to `const SECONDS_PER_DAY = 86400`
 
 ### 📝 Verdict
 ⚠️ Needs fixes — Critical SQL injection issue must be addressed before merge

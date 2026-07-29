@@ -62,6 +62,7 @@ This skill is based on 350+ rules from three foundational software engineering b
 | Dependency Rule | CA-31 | Dependencies point inward only |
 | Screaming Architecture | CA-30 | Structure reveals intent |
 | Plugin Architecture | CA-47 | Details as plugins |
+| Humble Object | CA-46 | Isolate hard-to-test code |
 
 ### Component Principles
 

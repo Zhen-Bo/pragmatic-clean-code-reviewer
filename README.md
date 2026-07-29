@@ -1,13 +1,12 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Clean%20Code-Enforced-brightgreen?style=for-the-badge&logo=checkmarx" alt="Clean Code">
-  <img src="https://img.shields.io/badge/Clean%20Architecture-Verified-blue?style=for-the-badge&logo=blueprint" alt="Clean Architecture">
-  <img src="https://img.shields.io/badge/Pragmatic%20Programmer-Applied-orange?style=for-the-badge&logo=bookstack" alt="Pragmatic Programmer">
-</p>
-
 <h1 align="center">Pragmatic Clean Code Reviewer</h1>
 
 <p align="center">
-  <strong>A Claude Code skill for conducting rigorous code reviews based on software engineering classics</strong>
+  <strong>An Agent Skill for pragmatic code and architecture review</strong><br>
+  Works with any harness that supports the Agent Skills format: Claude Code, Codex, OpenCode, and compatible runners.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/license/Zhen-Bo/pragmatic-clean-code-reviewer?style=flat-square" alt="License">
 </p>
 
 <p align="center">
@@ -15,6 +14,7 @@
   <a href="#usage">Usage</a> •
   <a href="#features">Features</a> •
   <a href="docs/project-positioning.md">Project Positioning</a> •
+  <a href="docs/review-profile.md">Review Profile</a> •
   <a href="docs/rule-sources.md">Rule Sources</a>
 </p>
 
@@ -22,15 +22,29 @@
 
 ## Overview
 
-This skill transforms Claude Code into a **strict code review expert** that evaluates your code against 350+ rules from three foundational software engineering books:
+This skill (v2.0.0, from frontmatter `metadata.version`) is a calibrated review
+contract: it checks changed code for contract and safety risks, architecture,
+maintainability, testing, and operational concerns. Severity follows project
+positioning. Coverage accounting is mandatory.
+
+It is grounded in three software engineering books (350+ rules loaded
+**progressively** when a finding needs citation detail — not all scanned
+individually every run):
 
 | Book | Author | Rules |
 |------|--------|-------|
-| 📗 **The Pragmatic Programmer** | David Thomas & Andrew Hunt | 100 Tips |
-| 📘 **Clean Code** | Robert C. Martin | 202 Rules |
-| 📙 **Clean Architecture** | Robert C. Martin | 48 Principles |
+| **The Pragmatic Programmer** | David Thomas & Andrew Hunt | 100 Tips |
+| **Clean Code** | Robert C. Martin | 202 Rules |
+| **Clean Architecture** | Robert C. Martin | 48 Principles |
+
+Every review always scans the **19-point closed checklist** (groups A–E). Rule
+corpus files are opened only when needed for paradigm adjustments, citations, or
+edge cases.
 
 > **Philosophy:** Let machines handle formatting; humans focus on logic and design.
+
+> **Not a substitute** for fuzzing, formal verification, a dedicated security
+> audit, or framework-specific static analysis. Output is a review, not a proof.
 
 ---
 
@@ -38,11 +52,18 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 ### Quick Install
 
-| Tool | Command |
-|------|---------|
-| **Claude Code** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.claude/skills/pragmatic-clean-code-reviewer` |
-| **OpenCode** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.config/opencode/skills/pragmatic-clean-code-reviewer` |
-| **Codex** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.codex/skills/pragmatic-clean-code-reviewer` |
+Clone into your harness skills directory:
+
+```bash
+git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git <skills-directory>/pragmatic-clean-code-reviewer
+```
+
+| Harness | Skills directory |
+|---------|------------------|
+| **Claude Code** | `~/.claude/skills/` |
+| **Codex** | `~/.codex/skills/` |
+| **OpenCode** | `~/.config/opencode/skills/` |
+| **Other Agent Skills runner** | your harness's skills directory |
 
 ### From GitHub Release
 
@@ -56,15 +77,28 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 ### Invoke the Skill
 
+Invoke by name in harnesses with slash invocation, or use natural language.
+
 ```
 /pragmatic-clean-code-reviewer
 ```
 
-### Or Use Natural Language
+Examples:
 
-- *"Review my code for code smells"*
-- *"Check if this PR is ready to merge"*
-- *"Audit the architecture of this module"*
+- *"Review this PR for merge readiness"*
+- *"Architecture review of this module"*
+- *"Is this ready to merge at team standard?"*
+- *"Refactor review — focus on maintainability"*
+
+### Optional Review Profile
+
+Persist calibration in the **target** project so reviews skip the questionnaire:
+
+1. Canonical: `docs/code-review-profile.md`
+2. Fallback: `.code-review-profile.md` (canonical wins if both exist)
+
+Authoritative schema: [references/review-profile.md](references/review-profile.md).
+Human-oriented overview: [docs/review-profile.md](docs/review-profile.md).
 
 ---
 
@@ -72,16 +106,17 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 | Feature | Description |
 |---------|-------------|
-| 🎯 **3+4+2 Positioning System** | Questionnaire determines L1-L5 strictness |
-| 🏷️ **Five Strictness Levels** | From L1 (Lab) to L5 (Critical) |
-| ✅ **15-Point Checklist** | Systematic code evaluation |
-| 📋 **Standardized Reports** | Clear, consistent output format |
-| 🔧 **Fix Effort & Benefit** | Effort/Benefit analysis with reasoning guidance |
-| 📝 **8-Step Workflow** | Explicit review sequence with deterministic verdict |
-| 🔖 **Rule Citations** | Every issue references PP/CC/CA rules |
-| 🌐 **Language-Aware** | Adjusts rules for different paradigms |
+| **3+4+2 Positioning** | Questionnaire (or profile) → L1–L5 strictness |
+| **Five Strictness Levels** | L1 (Lab) through L5 (Critical) |
+| **19-Point Checklist** | Always-scanned closed taxonomy (A–E); 350+ rules loaded on demand |
+| **Coverage Accounting** | Scope Manifest, Coverage Ledger, Whole-Scope Checks, Coverage Reconciliation (mandatory) |
+| **Effort & Benefit** | Critical/Important only; nested reason bullets |
+| **Deterministic Verdicts** | Level-aware gates; fourth verdict `⛔ Review incomplete` when coverage is partial |
+| **Rule Citations** | Findings cite PP/CC/CA when detailed; Critical/Important evidence is one of: site quote (≤3 lines), distributed (≤3 locations, ≤6 lines total), or negative (search scope + absent artifact) |
+| **Language-Aware** | Paradigm adjustments via progressive reference load |
+| **Review Profile** | Per-project calibration, thresholds, scoped waivers |
 
-👉 **[See detailed features →](docs/features.md)**
+**[Detailed features →](docs/features.md)**
 
 ---
 
@@ -91,13 +126,34 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 | Level | Name | Key Question |
 |-------|------|--------------|
-| **L1** | 🧪 Lab | Does it run? |
-| **L2** | 🛠️ Tool | Understandable next month? |
-| **L3** | 🤝 Team | Can teammates take over? |
-| **L4** | 🚀 Infra | Others suffer if broken? |
-| **L5** | 🏛️ Critical | Can it pass audit? |
+| **L1** | Lab | Does it run? |
+| **L2** | Tool | Understandable next month? |
+| **L3** | Team | Can teammates take over? |
+| **L4** | Infra | Others suffer if broken? |
+| **L5** | Critical | Can it pass audit? |
 
-👉 **[Full positioning guide →](docs/project-positioning.md)**
+**[Full positioning guide →](docs/project-positioning.md)**
+
+### Required Report Blocks
+
+1. Header (level, positioning, source, profile path)
+2. Scope Manifest
+3. Coverage Ledger
+4. Whole-Scope Checks
+5. 🔴 Critical Issues *(omit if empty)*
+6. 🟡 Important Issues *(omit if empty)*
+7. 🔵 Minor Issues *(omit if empty)* — compact one-liners; **capped at 10**; **verdict-neutral**
+8. Waiver Disclosure
+9. Coverage Reconciliation
+10. Verdict
+
+Incomplete coverage never claims merge readiness:
+
+```
+⛔ Review incomplete — X/Y files reviewed · X/Y domain cells accounted
+```
+
+Full worked examples: [references/report-example.md](references/report-example.md)
 
 ### Rule Prefixes
 
@@ -107,7 +163,7 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 | **CC-##** | Clean Code |
 | **CA-##** | Clean Architecture |
 
-👉 **[Full rule sources →](docs/rule-sources.md)**
+**[Full rule sources →](docs/rule-sources.md)**
 
 ---
 
@@ -115,9 +171,10 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 | Document | Description |
 |----------|-------------|
-| [Features](docs/features.md) | Detailed feature explanations |
-| [Project Positioning](docs/project-positioning.md) | 3+4+2 system & L1-L5 mapping |
-| [Metrics & Code Smells](docs/metrics.md) | Thresholds and exemptions |
+| [Features](docs/features.md) | Feature explanations |
+| [Project Positioning](docs/project-positioning.md) | 3+4+2 system and L1–L5 mapping |
+| [Review Profile](docs/review-profile.md) | Per-project calibration, waivers, lifecycle |
+| [Metrics & Code Smells](docs/metrics.md) | Measurement rules and exemptions |
 | [Rule Sources](docs/rule-sources.md) | Book summaries and key principles |
 
 ---
@@ -126,15 +183,18 @@ This skill transforms Claude Code into a **strict code review expert** that eval
 
 ```
 pragmatic-clean-code-reviewer/
-├── SKILL.md                # Main skill (for AI)
+├── SKILL.md                # Main skill contract (for AI) — v2.0.0
 ├── README.md               # This file
 ├── CHANGELOG.md            # Release history
-├── docs/                   # Detailed documentation (for humans)
+├── docs/                   # Documentation (for humans)
 │   ├── features.md
 │   ├── project-positioning.md
+│   ├── review-profile.md
 │   ├── metrics.md
 │   └── rule-sources.md
-└── references/             # Rule references (for AI)
+└── references/             # Rule references and examples (for AI)
+    ├── report-example.md
+    ├── review-profile.md
     ├── clean-code.md
     ├── clean-architecture.md
     ├── pragmatic-programmer.md
@@ -145,11 +205,11 @@ pragmatic-clean-code-reviewer/
 
 ## Contributing
 
-Contributions are welcome! Please feel free to:
+Contributions are welcome:
 
-- 🐛 Report issues
-- 💡 Suggest improvements
-- 🔧 Submit pull requests
+- Report issues
+- Suggest improvements
+- Submit pull requests
 
 ---
 
@@ -162,17 +222,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 ## Credits
 
 Based on principles from:
-- 📗 *"The Pragmatic Programmer"* by David Thomas and Andrew Hunt
-- 📘 *"Clean Code"* by Robert C. Martin
-- 📙 *"Clean Architecture"* by Robert C. Martin
 
----
-
-<p align="center">
-  <sub>Built with principles from software engineering classics</sub>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Made%20for-Claude%20Code-blueviolet?style=flat-square" alt="Made for Claude Code">
-  <img src="https://img.shields.io/github/license/Zhen-Bo/pragmatic-clean-code-reviewer?style=flat-square" alt="License">
-</p>
+- *"The Pragmatic Programmer"* by David Thomas and Andrew Hunt
+- *"Clean Code"* by Robert C. Martin
+- *"Clean Architecture"* by Robert C. Martin

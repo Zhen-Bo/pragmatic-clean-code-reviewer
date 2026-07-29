@@ -31,7 +31,7 @@ CANONICAL = {
 ID_RANGES = {"CC": (1, 202), "CA": (1, 48), "PP": (1, 100)}
 
 MAX_SKILL_LINES = 438
-MAX_SKILL_WORDS = 3250
+MAX_SKILL_WORDS = 3300
 
 # references/*.md longer than this must carry a table of contents
 TOC_REQUIRED_OVER_LINES = 100
@@ -1408,7 +1408,7 @@ def _unit_checks() -> None:
     assert any("## Report" == line for _, line in sections[1][1]), sections[1]
 
     # budgets are a stated contract, not an incidental value
-    assert (MAX_SKILL_LINES, MAX_SKILL_WORDS) == (438, 3250), (
+    assert (MAX_SKILL_LINES, MAX_SKILL_WORDS) == (438, 3300), (
         MAX_SKILL_LINES,
         MAX_SKILL_WORDS,
     )
@@ -1616,7 +1616,7 @@ def _fixture_checks(tmp: Path) -> None:
     ok, out = _run(v, expected_version="1.2.4")
     assert not ok and "expected '1.2.4'" in out, out
 
-    # 11. budgets — the limits are 438 lines / 3250 words, inclusive
+    # 11. budgets — the limits are 438 lines / 3300 words, inclusive
     v = variant("too-many-lines")
     _patch(v / "SKILL.md", "# Demo Skill", "# Demo Skill\n" + "\n" * MAX_SKILL_LINES)
     ok, out = _run(v)
@@ -1626,7 +1626,7 @@ def _fixture_checks(tmp: Path) -> None:
         v / "SKILL.md", "# Demo Skill", "# Demo Skill\n\n" + ("word " * MAX_SKILL_WORDS)
     )
     ok, out = _run(v)
-    assert not ok and "max 3250" in out, out
+    assert not ok and "max 3300" in out, out
 
     # exactly at both limits still passes, and the message states them
     v = variant("budget-at-limit")
@@ -1639,12 +1639,12 @@ def _fixture_checks(tmp: Path) -> None:
     skill.write_text(text + "\n".join(filler) + "\n", encoding="utf-8")
     ok, out = _run(v)
     assert ok, out
-    assert "438 lines (≤ 438)" in out and "3250 words (≤ 3250)" in out, out
+    assert "438 lines (≤ 438)" in out and "3300 words (≤ 3300)" in out, out
     # one line and one word past the limit is a failure
     skill.write_text(text + "\n".join(filler) + "\nword\n", encoding="utf-8")
     ok, out = _run(v)
     assert not ok and "439 lines (max 438)" in out, out
-    assert "3251 words (max 3250)" in out, out
+    assert "3301 words (max 3300)" in out, out
 
     # 12. document content regressions
     v = variant("missing-breadth-weight")

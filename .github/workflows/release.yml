@@ -21,9 +21,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install pyyaml
-
       - name: Validate skill
         run: python scripts/validate_skill.py .
 
@@ -34,6 +31,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Full history and tags: the release notes diff against the previous
+          # tag, which a shallow clone cannot resolve (no HEAD^, no tags).
+          fetch-depth: 0
 
       - name: Get version from tag
         id: version
@@ -42,56 +43,65 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Release version: $VERSION"
 
-      - name: Verify version matches SKILL.md
+      - name: Verify tag matches SKILL.md metadata.version
         run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          SKILL_VERSION=$(grep -E "^version:" SKILL.md | head -1 | sed 's/version:[[:space:]]*//')
-          
-          if [ -z "$SKILL_VERSION" ]; then
-            echo "⚠️ No version found in SKILL.md frontmatter"
-          elif [ "$TAG_VERSION" != "$SKILL_VERSION" ]; then
-            echo "❌ Version mismatch!"
-            echo "   Tag version: $TAG_VERSION"
-            echo "   SKILL.md version: $SKILL_VERSION"
-            exit 1
-          else
-            echo "✅ Version match: $SKILL_VERSION"
-          fi
+          set -euo pipefail
+          # Full validation, plus the tag/metadata.version binding. Any failure
+          # (including a missing or unreadable version) exits non-zero.
+          python3 scripts/validate_skill.py . --expected-version "${GITHUB_REF_NAME#v}"
 
       - name: Create skill package
         run: |
+          set -euo pipefail
           SKILL_NAME="pragmatic-clean-code-reviewer"
           VERSION="${GITHUB_REF_NAME}"
-          
+
           # Create package directory
           mkdir -p dist
-          
-          # Create .skill file (zip format) with skill contents
-          # Include only the essential skill files
+
+          # Skill payload: SKILL.md plus the whole references/ tree (profile
+          # schema, rule catalogs, report example). docs/ is repository
+          # documentation and is deliberately never shipped.
           zip -r "dist/${SKILL_NAME}-${VERSION}.skill" \
             SKILL.md \
             references/ \
             -x "*.git*" \
             -x "*__pycache__*" \
             -x "*.DS_Store"
-          
-          # Also create a plain zip for compatibility
-          zip -r "dist/${SKILL_NAME}-${VERSION}.zip" \
-            SKILL.md \
-            references/ \
-            -x "*.git*" \
-            -x "*__pycache__*" \
-            -x "*.DS_Store"
-          
+
+          # Same payload under .zip for clients that reject the .skill extension
+          cp "dist/${SKILL_NAME}-${VERSION}.skill" "dist/${SKILL_NAME}-${VERSION}.zip"
+
           echo "📦 Created packages:"
           ls -la dist/
+
+      - name: Verify package contents
+        run: |
+          set -euo pipefail
+          PKG="dist/pragmatic-clean-code-reviewer-${GITHUB_REF_NAME}.skill"
+          MANIFEST=$(unzip -Z1 "$PKG")
+          echo "$MANIFEST"
+
+          for required in SKILL.md references/*.md; do
+            if ! printf '%s\n' "$MANIFEST" | grep -qxF "$required"; then
+              echo "❌ Missing from package: $required"
+              exit 1
+            fi
+          done
+
+          if printf '%s\n' "$MANIFEST" | grep -q '^docs/'; then
+            echo "❌ docs/ must not be packaged"
+            exit 1
+          fi
+
+          echo "✅ Package contents verified"
 
       - name: Generate release notes
         id: release_notes
         run: |
           # Get previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          
+
           if [ -n "$PREV_TAG" ]; then
             echo "Generating changelog from $PREV_TAG to ${GITHUB_REF_NAME}..."
             CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s" --no-merges)
@@ -99,31 +109,41 @@ jobs:
             echo "First release, generating full changelog..."
             CHANGELOG=$(git log --pretty=format:"- %s" --no-merges | head -20)
           fi
-          
+
           # Write to file for multi-line handling
           cat << EOF > release_notes.md
           ## What's Changed
-          
+
           $CHANGELOG
-          
+
           ## Installation
-          
+
+          Works with any harness that supports the Agent Skills format. Install
+          into your harness skills directory:
+
+          | Harness | Skills directory |
+          |---------|------------------|
+          | **Claude Code** | \`~/.claude/skills/\` |
+          | **Codex** | \`~/.codex/skills/\` |
+          | **OpenCode** | \`~/.config/opencode/skills/\` |
+          | **Other Agent Skills runner** | your harness's skills directory |
+
           ### Option 1: Clone directly
           \`\`\`bash
-          git clone https://github.com/${{ github.repository }}.git ~/.claude/skills/pragmatic-clean-code-reviewer
+          git clone https://github.com/${{ github.repository }}.git <skills-directory>/pragmatic-clean-code-reviewer
           \`\`\`
-          
+
           ### Option 2: Download and extract
           1. Download the \`.skill\` or \`.zip\` file from this release
-          2. Extract to \`~/.claude/skills/pragmatic-clean-code-reviewer/\`
-          
+          2. Extract to \`<skills-directory>/pragmatic-clean-code-reviewer/\`
+
           ## Usage
-          
+
           Invoke the skill with:
           \`\`\`
           /pragmatic-clean-code-reviewer
           \`\`\`
-          
+
           Or use natural language: "Review my code for code smells"
           EOF
 

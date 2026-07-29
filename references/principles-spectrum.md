@@ -5,9 +5,12 @@ When principles seem to conflict, they're usually a spectrum. This guide explain
 ## Table of Contents
 
 - [DRY vs WET/AHA Spectrum](#dry-vs-wetaha-spectrum)
+- [Decision Framework](#decision-framework)
 - [YAGNI vs Future-Proofing Spectrum](#yagni-vs-future-proofing-spectrum)
 - [Abstraction Timing](#abstraction-timing)
 - [Level-Based Guidelines](#level-based-guidelines)
+- [Quick Decision Guide](#quick-decision-guide)
+- [Related Rules](#related-rules)
 
 ---
 
@@ -108,6 +111,22 @@ If the tax rate changes, you'd need to change both. **This is true duplication.*
 - 2nd time: You see similarity but not the full picture
 - 3rd time: You can see what varies and what's constant
 
+> **Level override:** Rule of Three is the L3 default. L2 is looser (report at 5 total occurrences). L4–L5 are stricter (report at 2 total occurrences). Test code: +1 occurrence before reporting. Never report the first occurrence as duplication. Where this guide and the level table disagree, the level table wins.
+
+### DRY Occurrence Thresholds by Level
+
+Count total occurrences, including the original occurrence.
+
+| Level | Report when total occurrences reach |
+|-------|-------------------------------------:|
+| L1 | Never for duplication alone |
+| L2 | 5 |
+| L3 | 3 |
+| L4 | 2 |
+| L5 | 2 |
+
+Test code: +1 occurrence before reporting. Never report the first occurrence as duplication.
+
 ---
 
 ## YAGNI vs Future-Proofing Spectrum
@@ -190,13 +209,19 @@ Different strictness levels have different tolerance for duplication:
 
 ### DRY Tolerance by Level
 
-| Level | Tolerance | Rationale |
-|-------|-----------|-----------|
-| **L1** | High (4+ repeats OK) | Code is throwaway, don't waste time abstracting |
-| **L2** | Medium-high (4 repeats) | Personal maintenance, abstract when it hurts |
-| **L3** | Medium (3 repeats) | Team handoff, abstractions help understanding |
-| **L4** | Low (2 repeats) | Wide usage, consistency is critical |
-| **L5** | Very low (1 repeat) | Any duplication is a bug waiting to happen |
+Count total occurrences, including the original occurrence.
+
+| Level | Report when total occurrences reach |
+|-------|-------------------------------------:|
+| L1 | Never for duplication alone |
+| L2 | 5 |
+| L3 | 3 |
+| L4 | 2 |
+| L5 | 2 |
+
+Test code: +1 occurrence before reporting. Never report the first occurrence as duplication.
+
+> **Level override:** Rule of Three is the L3 default. L2 is looser (report at 5 total occurrences). L4–L5 are stricter (report at 2 total occurrences). Where this guide and the level table disagree, the level table wins.
 
 ### YAGNI Tolerance by Level
 
@@ -240,8 +265,8 @@ def process_order(order: Order) -> Decimal:
 
 | Situation | Question | Answer |
 |-----------|----------|--------|
-| 2nd duplicate | Should I abstract? | **Usually no.** Wait for third. |
-| 3rd duplicate | Should I abstract? | **Ask the checklist.** All YES → abstract. |
+| 2nd total occurrence | Should I abstract? | **L3 default: usually no** (wait for third). At **L4–L5** the 2nd total occurrence **is** reportable. At L2 wait for 5. At L1 never. Test code: +1 before reporting. Never report the first occurrence. Level table wins. |
+| 3rd total occurrence | Should I abstract? | **L3 default: yes, ask the checklist.** All YES → abstract. Matches L3 threshold of 3. Level table wins if stricter/looser. |
 | Looks similar | Same knowledge? | **Check if they change together.** |
 | Adding feature | Build for future? | **Check project level.** L1-L2 = no, L4-L5 = maybe. |
 | Naming "Utils" | Good abstraction? | **No.** Find the real concept or keep separate. |

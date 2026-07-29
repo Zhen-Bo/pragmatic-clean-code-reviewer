@@ -353,8 +353,8 @@ I = 1: Maximally unstable (no dependents, many dependencies)
 |-----------|-----------|-------|
 | **Dependency Rule** | Dependencies point inward toward core | CA-31 |
 | **Screaming Architecture** | Architecture should scream its purpose | CA-30 |
-| **Plugin Architecture** | Details as plugins to core | CA-48 |
-| **Humble Object** | Isolate hard-to-test code | CA-32, CA-47 |
+| **Plugin Architecture** | Details as plugins to core | CA-47 |
+| **Humble Object** | Isolate hard-to-test code | CA-32, CA-46 |
 
 ### Dependency Rule
 

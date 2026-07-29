@@ -13,6 +13,7 @@
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#features">Features</a> •
+  <a href="#known-limitations">Known Limitations</a> •
   <a href="docs/project-positioning.md">Project Positioning</a> •
   <a href="docs/review-profile.md">Review Profile</a> •
   <a href="docs/rule-sources.md">Rule Sources</a>
@@ -216,6 +217,20 @@ Contributions are welcome:
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+## Known Limitations
+
+This skill is prompt-only. It has no runtime, so the following limits are structural, not oversights.
+
+**Coverage accounting is self-reported.** The Scope Manifest, Coverage Ledger, and reconciliation arithmetic make an incomplete review visible, but a model can still fabricate them. Real line counts, verbatim evidence quotes, per-file emission, and bidirectional reconciliation raise the cost of faking a review above the cost of performing one. That is a deterrent, not a proof.
+
+**The review profile is self-certification.** `docs/code-review-profile.md` is written by the team being reviewed. Non-waivable Critical findings, mandatory disclosure, and the waiver tripwires make abuse visible and attributable. They cannot make it impossible.
+
+**Finding quality is model quality.** The contract bounds what must be checked and what evidence a finding must carry. It cannot make a model notice a defect it does not understand.
+
+Closing any of these requires an enforcement layer outside the skill: a tool that reads the real file list and rejects a report whose ledger does not reconcile, or an organizational approval path for waivers. Partial mitigations inside the prompt would add contract surface without closing the gap, so they are deliberately not attempted. These will be revisited only when a complete answer exists, not patched incrementally.
 
 ---
 

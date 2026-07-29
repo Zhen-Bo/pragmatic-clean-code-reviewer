@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## 2.0.0
+
+### Added
+
+- Scope Manifest, five-domain Coverage Ledger, Whole-Scope Checks, Coverage Reconciliation, and the `⛔ Review incomplete` verdict — coverage accounting is a mandatory report contract
+- Point-coded exception ledger cells (`Pass`, `A2:F1`, `E1:Pass; E2:Gated:L4`) and required `Point:` field on every finding
+- Three evidence forms: site, distributed, and negative
+- Two-stage Scope Manifest: PENDING → DONE with exact LOC
+- N/A allowlist for ledger cells
+- Function-length ×1.5 multiplier for test functions only; production code excludes mechanical error-propagation/cleanup lines from the count (itemized, capped at 50% of raw)
+- Nesting counting convention
+- Minor findings capped at 10 with disclosed omissions
+- Governed threshold overrides: raise-only, ≤2×, expiring
+- Waiver-abuse minimum-sample rule
+- `dominant_language` profile field
+- Authoritative schema at `references/review-profile.md`
+- TOCs for long reference files
+- Consent-based per-project review profile (`docs/code-review-profile.md`, fallback `.code-review-profile.md`) with scoped, expiring waivers; Critical findings are never waivable
+- Closed 19-point / five-group review checklist (adds KISS/YAGNI/over-engineering and public-API/compatibility points) and anti-anchoring contract: user-named principles set emphasis, never scope
+- Verbatim evidence-quote requirement for Critical/Important findings; `[PROJECT:SCOPE]` meta-findings; `[pre-existing]` tagging; default exclusions; batching protocol for large scopes
+
+### Changed
+
+- Rebalanced the skill around observable coverage rather than finding-shaped output
+- Bounded correctness review to concrete contract, safety, boundary, and logic defects evidenced by a reviewed code path
+- DRY ladder: total occurrences Never/5/3/2/2 (L1–L5) with +1 for tests (L3 aligns with Rule of Three)
+- Parameter limits: L4 3→4, L5 2→3
+- Important verdict gate uses absolute bases 4/3/2 with per-finding verdict weight `min(affected_files, 3)` — grouping compresses the report, never the verdict; total scope size never affects a gate
+- `[fundamental]` reclassified as an Important architecture tag (not a separate severity class); kept as an Important-tier architecture designation
+- Same-root-cause grouping at ≥2 files
+- A5 (state/concurrency) and C6 (public contracts) baselines active at every level; deeper analysis L3+/L4+
+- Batching adds a 600-LOC bound (with ≤5 files)
+- Frontmatter version moved to `metadata.version` with `license: MIT`
+- Questionnaire and D/R/C lookup moved to `references/positioning.md` (mandatory load)
+- README and docs made harness-neutral (Agent Skills format; Claude Code, Codex, OpenCode, and compatible runners)
+- Consolidated metrics, report example, smells, and red flags into canonical locations; report example moved to `references/report-example.md`
+- Minor severity: one line, no Effort/Benefit, never affects the verdict, operational reporting floor, cap 10
+- Test coverage reframed: never estimate percentages; report changed behavior lacking tests
+- Conflicting profile levels resolve to the stricter of declared and derived, keep exclusions, and revalidate waivers and overrides against the effective level
+
+### Removed
+
+- Generic bug-hunting triggers ("find bugs", "check for issues", "look at my code") and exhaustive bug-sweep language
+- Redundant Rule Reference Codes, Common Principles Quick Reference, inline full report example, and duplicated positioning/threshold content
+- Estimated static test-coverage percentages; vague same-file DRY exemption
+
+### Fixed
+
+- Report example certified gated-but-active E1 cells and invalid D2/R3/C1→L3 mapping (now D2/R3/C2)
+- `N/A:no tests` D1 bypass
+- Unbounded threshold overrides
+- Reconciliation arithmetic: unique IDs; PARTIAL-row cells count (6/10 case)
+- Residual coverage percentages in positioning reference
+- Empty Critical-architecture verdict class
+- DRY occurrence calibration made explicit and the worked example corrected to the 4th occurrence at L3 (superseded by Never/5/3/2/2 ladder above)
+- Misattributed rule IDs: PP-91→PP-70, PP-75→PP-62 (SKILL.md), Plugin Architecture CA-48→CA-47 and Humble Object CA-47→CA-46 (glossary), Hard-to-test CA-47→CA-46/CA-48 (quick-lookup)
+- Documentation drift: severity model, valid-combination count (20→16), report-flow diagram, version/changelog mismatch
+
+## 1.3.2
+
+### Added
+
+- **Review Integrity**: Anti-sycophancy, severity anchoring, completeness gates, and pre-verdict gate — do not omit/downplay findings, complete the full checklist, classify from criteria alone, and do not retract findings without factual correction
+- **Completeness Gate Expansion**: Require every in-scope file against all checklist points, the Common Code Smells table, and the Red Flags list before classification
+- **Minor Severity Tier Restored**: Reintroduced 🔵 Minor (Nice to Have) with simplified Rule + Suggestion format (no Effort/Benefit); allowed report sections now include Minor Issues
+
+### Changed
+
+- **Severity Floor**: Items below Minor threshold are not reported (was: below Important)
+- **Workflow Notes**: Severity anchoring before user reaction; Minor excluded from Effort/Benefit assessment; pre-verdict check that all scoped files were reviewed
+
 ## 1.3.1
 
 ### Added
@@ -43,7 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- **Minor Issues tier (🔵)**: Consolidated to 2-tier severity (Critical + Important). Below-threshold items are not reported — if it's not worth actioning, omit it entirely
+- **Minor Issues tier (🔵)**: Consolidated to 2-tier severity (Critical + Important). Below-threshold items are not reported — if it's not worth actioning, omit it entirely *(Correction 2.0.0: this removal was never applied — the Minor tier remained in SKILL.md and is intentionally retained as verdict-neutral from 2.0.0 onward.)*
 - **Strengths section (✅)**: Removed from report template, example, and workflow. Code review is purely problem-focused — no AI sycophancy
 - **"Common Mistakes to Avoid" section**: Guidance integrated into workflow and reference loading table
 - **"The Bottom Line" section**: Redundant with the explicit Review Workflow

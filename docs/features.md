@@ -1,6 +1,6 @@
 # Features
 
-Feature documentation for Pragmatic Clean Code Reviewer (v2.0.0).
+Feature documentation for Pragmatic Clean Code Reviewer (v2.0.0-rc1).
 
 This skill reviews contract and safety risks, architecture, maintainability,
 testing, and operability with calibrated severity and mandatory coverage

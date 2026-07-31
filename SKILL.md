@@ -9,7 +9,7 @@ description: >
   "check code quality", "is this code good?", "clean up code", "best practices".
 license: MIT
 metadata:
-  version: 2.0.0
+  version: 2.0.0-rc1
 ---
 
 # Pragmatic Clean Code Reviewer

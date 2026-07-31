@@ -23,7 +23,7 @@
 
 ## Overview
 
-This skill (v2.0.0, from frontmatter `metadata.version`) is a calibrated review
+This skill (v2.0.0-rc1, from frontmatter `metadata.version`) is a calibrated review
 contract: it checks changed code for contract and safety risks, architecture,
 maintainability, testing, and operational concerns. Severity follows project
 positioning. Coverage accounting is mandatory.
@@ -184,7 +184,7 @@ Full worked examples: [references/report-example.md](references/report-example.m
 
 ```
 pragmatic-clean-code-reviewer/
-├── SKILL.md                # Main skill contract (for AI) — v2.0.0
+├── SKILL.md                # Main skill contract (for AI) — v2.0.0-rc1
 ├── README.md               # This file
 ├── CHANGELOG.md            # Release history
 ├── docs/                   # Documentation (for humans)

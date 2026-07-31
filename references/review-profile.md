@@ -275,6 +275,6 @@ findings.
 
 - Questionnaire, lookup table, level definitions, thresholds:
   [positioning.md](positioning.md)
-- User-facing summary: [docs/review-profile.md](../docs/review-profile.md)
+- User-facing summary: [docs/review-profile.md](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/blob/main/docs/review-profile.md)
 - Report examples including waived findings:
   [report-example.md](report-example.md)

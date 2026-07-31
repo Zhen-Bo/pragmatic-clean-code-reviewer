@@ -9,7 +9,7 @@ calibration.
 
 [SKILL.md](../SKILL.md) is the operating source for metric thresholds and
 protocol rules; its inline tables win where the threshold tables below disagree.
-[docs/metrics.md](../docs/metrics.md) is the explanatory rationale inventory.
+[docs/metrics.md](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/blob/main/docs/metrics.md) is the explanatory rationale inventory.
 
 ## Table of Contents
 
@@ -179,7 +179,7 @@ Notes:
 - DRY counts **total occurrences**, including the original. In test files the
   reporting threshold is the level value **plus one**, because fixture-shaped
   repetition is often clearer than a shared helper.
-- Measurement rules and exemptions live in [docs/metrics.md](../docs/metrics.md).
+- Measurement rules and exemptions live in [docs/metrics.md](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/blob/main/docs/metrics.md).
 - Thresholds may be raised for specific paths through profile
   `threshold_overrides`; the bounds are defined in
   [references/review-profile.md](review-profile.md).

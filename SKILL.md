@@ -299,10 +299,7 @@ Block order: 1 Header (positioning, level, source, profile path) · 2 Scope Mani
 3 Coverage Ledger · 4 Whole-Scope Checks · 5 🔴 Critical Issues · 6 🟡 Important Issues ·
 7 🔵 Minor Issues · 8 Waiver Disclosure · 9 Coverage Reconciliation · 10 📝 Verdict.
 
-Before the first report of a session, state the derived level and the pass strategy: one pass
-for a high-capability model, two for mid-capability, and for low-capability note that a second
-pass does not improve coverage. Never withdraw a finding without evidence the original was
-factually wrong.
+Never withdraw a finding without evidence the original was factually wrong.
 
 Omit an empty severity section (blocks 5–7). The accounting blocks (2, 3, 4, 8, 9, 10) are
 mandatory: never softening, never dropped for brevity. No praise or positive observations, no

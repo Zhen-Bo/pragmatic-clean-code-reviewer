@@ -59,7 +59,7 @@ The final report claims only what the Auditable Review Trace evidences: confirme
 Clone into your harness skills directory:
 
 ```bash
-git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git <skills-directory>/pragmatic-code-review
+git clone https://github.com/Zhen-Bo/pragmatic-code-review.git <skills-directory>/pragmatic-code-review
 ```
 
 | Harness | Skills directory |
@@ -69,7 +69,9 @@ git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git <skills-d
 | **OpenCode** | `~/.config/opencode/skills/` |
 | **Other Agent Skills runner** | your harness's skills directory |
 
-Or download a release package from [Releases](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/releases) and extract it there.
+Or download a release package from [Releases](https://github.com/Zhen-Bo/pragmatic-code-review/releases) and extract it there.
+
+Formerly `pragmatic-clean-code-reviewer` — old links and clone URLs redirect here.
 
 ---
 

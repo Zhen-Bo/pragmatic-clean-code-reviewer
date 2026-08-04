@@ -53,7 +53,7 @@ jobs:
       - name: Create skill package
         run: |
           set -euo pipefail
-          SKILL_NAME="pragmatic-clean-code-reviewer"
+          SKILL_NAME="pragmatic-code-review"
           VERSION="${GITHUB_REF_NAME}"
 
           # Create package directory
@@ -79,7 +79,7 @@ jobs:
       - name: Verify package contents
         run: |
           set -euo pipefail
-          PKG="dist/pragmatic-clean-code-reviewer-${GITHUB_REF_NAME}.skill"
+          PKG="dist/pragmatic-code-review-${GITHUB_REF_NAME}.skill"
           MANIFEST=$(unzip -Z1 "$PKG")
           echo "$MANIFEST"
 

@@ -7,7 +7,7 @@ description: >
   Do not use for implementing fixes, writing new code, or lint/format-only passes.
 license: MIT
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # Pragmatic Code Review
@@ -54,10 +54,10 @@ Inspection triggers — the only numeric triggers; a breach starts closer inspec
 
 ### Counting rules
 
-1. **Logic lines** — every nonblank, non-comment line.
+1. **Logic lines** — every line of executable code.
 2. **Required parameters** — caller-mandatory parameters only (excludes defaults, variadic parameters, receiver, and type parameters).
 3. **Nesting** — function body is depth 0; each control level adds 1.
-4. **Duplicated knowledge** — reviewer-judged same-knowledge occurrences (semantic, not clone detection). The threshold calibrates confirmation effort, not an automatic finding.
+4. **Duplicated knowledge** — reviewer-judged same-knowledge occurrences (semantic, not clone detection); every appearance counts. The threshold calibrates confirmation effort, not an automatic finding.
 5. **File lines** — physical lines of the source file.
 
 ## Rule Packs

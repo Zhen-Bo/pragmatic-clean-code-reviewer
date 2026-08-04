@@ -125,10 +125,10 @@ Inspection triggers start closer inspection; they are not findings by themselves
 <details>
 <summary><strong>Counting rules (summary)</strong></summary>
 
-- **Logic lines** — every nonblank, non-comment line
+- **Logic lines** — every line of executable code
 - **Required parameters** — caller-mandatory only
 - **Nesting** — function body starts at depth 0; each control level adds 1
-- **Duplicated knowledge** — reviewer-judged same knowledge (semantic)
+- **Duplicated knowledge** — reviewer-judged same knowledge (semantic); every appearance counts
 - **File lines** — physical lines
 
 Full rules live in [SKILL.md](SKILL.md).

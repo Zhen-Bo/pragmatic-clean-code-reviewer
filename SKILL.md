@@ -1,462 +1,150 @@
 ---
-name: pragmatic-clean-code-reviewer
-version: 1.3.2
+name: pragmatic-code-review
 description: >
-  Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer
-  principles. Use when: (1) reviewing code or pull requests, (2) detecting code smells or
-  quality issues, (3) auditing architecture decisions, (4) preparing code for merge,
-  (5) refactoring existing code, or (6) checking adherence to SOLID, DRY, YAGNI, KISS principles.
-  Features a 3+4+2 questionnaire system to calibrate strictness from L1 (lab) to L5 (critical).
-  Also triggers on: "is this code good?", "check code quality", "ready to merge?",
-  "technical debt", "code smell", "best practices", "clean up code", "refactor review",
-  "review this PR", "PR review", "code review", "pre-merge check", "code audit",
-  "is this production-ready?", "find bugs", "look at my code", "check for issues".
+  Reviews user-selected code and reports every confirmed violation with code evidence, consequence, and severity at a user-chosen strictness level (L1–L5).
+  Use for code review, architecture review, design review, maintainability review, or refactor review.
+  Also triggers on: "review this PR", "code audit", "technical debt", "code smell", "check code quality", "is this code good?", "clean up code", "best practices".
+  Do not use for implementing fixes, writing new code, or lint/format-only passes.
+license: MIT
+metadata:
+  version: 2.0.0
 ---
 
-# Pragmatic Clean Code Reviewer
+# Pragmatic Code Review
 
-Strict code review following Clean Code, Clean Architecture, and The Pragmatic Programmer principles.
+## Product Promise
 
-**Core principle:** Let machines handle formatting; humans focus on logic and design.
+Complete Review means all known required review work is accounted for in one Auditable Review Trace, and Final Recheck found no unfinished work.
+Emit the final report only after Complete Review.
 
-## Review Integrity
+The final report claims only what the Auditable Review Trace evidences: confirmed findings, completed work, and remaining uncertainty.
 
-Your review must be complete and accurate. Specific prohibitions:
+Resolve missing information from repository evidence first; remaining uncertainty becomes a reported finding, and the review continues until Complete Review or a user stop.
 
-- Do not omit, hide, or downplay any finding that meets the severity threshold
-- Do not stop scanning after finding initial issues -- complete the full checklist for all in-scope files
-- Do not soften severity classification to avoid confrontation -- classify based on issue criteria alone
-- Do not retract or weaken a finding unless the user provides a factual correction that disproves it
+On user stop: emit the findings so far, labeled a partial review.
 
-Zero findings is a valid outcome when no issues meet the threshold.
+## Review Scope and Paths
 
----
+Review Scope is the user's explicit target.
+Resolve it with repository tools into a complete file list before review begins.
+Show the scope basis and file count at review start.
 
-## ⚠️ MANDATORY FIRST STEP: Project Positioning
+- Absent scope → ask the user for Review Scope and wait. This is the review's only question; every later open point becomes a finding.
+- Nonexistent target → empty Review Scope; complete the review by reporting that fact.
+- Read every in-scope path directly and fully, judging rule applicability yourself while reading.
+- Never read paths ignored by `.gitignore` — they may hold secrets.
 
-**STOP! Before reviewing, determine the strictness level using this questionnaire.**
+## Quality Level
 
-### Q1: Who will use this code?
+Apply only the user-stated Quality Level, L1–L5; when none is supplied, apply L3 and state it before review.
+Repository-policy breaches are ordinary findings under that level.
+Lower levels relax only maintainability strictness.
 
-| Code | Option | Description |
-|------|--------|-------------|
-| D1 | 🧑 **Solo** | Only myself |
-| D2 | 👥 **Internal** | Team/company internal |
-| D3 | 🌍 **External** | External users/open source |
+Inspection triggers — the only numeric triggers; a breach starts closer inspection and is not a finding by itself:
 
-### Q2: What standard do you want?
+| Inspection trigger | L1 | L2 | L3 | L4 | L5 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Function effective logic lines | none | 80 | 50 | 30 | 20 |
+| Required parameters | none | 7 | 5 | 4 | 3 |
+| Maximum nesting depth | none | 5 | 4 | 3 | 2 |
+| Confirmed occurrences of the same duplicated knowledge | none | 5 | 3 | 2 | 2 |
+| Source-file lines | none | 800 | 500 | 300 | 200 |
 
-| Code | Option | Description |
-|------|--------|-------------|
-| R1 | 🚀 **Ship** | Just make it work |
-| R2 | 📦 **Normal** | Basic quality |
-| R3 | 🛡️ **Careful** | Careful review |
-| R4 | 🔒 **Strict** | Highest standard |
+`none` means no numeric trigger; concrete structural problems remain reportable at every level.
 
-### Q3: How critical? (Conditional)
+### Counting rules
 
-> **Only ask if:** (D2 or D3) AND (R3 or R4)
+1. **Logic lines** — every nonblank, non-comment line.
+2. **Required parameters** — caller-mandatory parameters only (excludes defaults, variadic parameters, receiver, and type parameters).
+3. **Nesting** — function body is depth 0; each control level adds 1.
+4. **Duplicated knowledge** — reviewer-judged same-knowledge occurrences (semantic, not clone detection). The threshold calibrates confirmation effort, not an automatic finding.
+5. **File lines** — physical lines of the source file.
 
-| Code | Option | Description |
-|------|--------|-------------|
-| C1 | 🔧 **Normal** | General feature, can wait for fix |
-| C2 | 💎 **Critical** | Core dependency, outage if broken |
+## Rule Packs
 
-### Quick Lookup Table
+Review Protocol step 3 loads all eight packs:
 
-| D | R | C | Level | Example |
-|---|---|---|-------|---------|
-| D1 | R1 | - | L1 | Experiment script |
-| D1 | R2 | - | L1 | Personal utility |
-| D1 | R3 | - | L2 | Personal long-term project |
-| D1 | R4 | - | L3 | Personal perfectionist |
-| D2 | R1 | - | L1 | Team prototype |
-| D2 | R2 | - | L2 | Team daily dev |
-| D2 | R3 | C1 | L2 | Internal helper tool |
-| D2 | R3 | C2 | L3 | Internal SDK |
-| D2 | R4 | C1 | L3 | Internal tool (high std) |
-| D2 | R4 | C2 | L4 | Internal core infra |
-| D3 | R1 | - | L2 | Product MVP |
-| D3 | R2 | - | L3 | General product feature |
-| D3 | R3 | C1 | L3 | Small OSS tool |
-| D3 | R3 | C2 | L4 | Product core feature |
-| D3 | R4 | C1 | L4 | OSS tool (high std) |
-| D3 | R4 | C2 | L5 | Finance/Medical/Core OSS |
+1. [Design and Maintainability](references/design-and-maintainability.md)
+2. [Testing](references/testing.md)
+3. [Security and Privacy](references/security-and-privacy.md)
+4. [Contracts and Compatibility](references/contracts-and-compatibility.md)
+5. [Reliability and Operations](references/reliability-and-operations.md)
+6. [Dependencies and Build](references/dependencies-and-build.md)
+7. [Documentation and Generated Artifacts](references/documentation-and-generated-artifacts.md)
+8. [Research Reproducibility](references/research-reproducibility.md)
 
-**For detailed explanations:** See [positioning.md](references/positioning.md)
+Report every problem with evidence and consequence, whether or not a pack names it — including correctness, security, authorization, data integrity, and repository contracts on every review.
 
-> **Fallback:** If the user skips positioning or says "just review it," default to **L3 (Team)** and note in the report header: `**Project Positioning:** L3 Team (default — user skipped calibration)`.
+Supporting references — open them when a pack cites their rule IDs or a topic needs book-level detail: [clean-code.md](references/clean-code.md), [clean-architecture.md](references/clean-architecture.md), [pragmatic-programmer.md](references/pragmatic-programmer.md), and [principles-glossary.md](references/principles-glossary.md); open [language-adjustments.md](references/language-adjustments.md) when a counting or nesting question is language-specific.
 
----
+**Rule Authority:** use the most directly relevant source; on conflict, inspect the repository; if conflict remains, report the finding with the conflicting evidence for the user to rule out.
 
-## Level Definitions
+Leave formatting, naming conventions, and unused imports to linters and formatters; report one only with a concrete consequence beyond style.
 
-| Level | Name | Key Question |
-|-------|------|--------------|
-| **L1** | 🧪 Lab | Does it run? |
-| **L2** | 🛠️ Tool | Can I understand it next month? |
-| **L3** | 🤝 Team | Can teammates take over? |
-| **L4** | 🚀 Infra | Will others suffer if I break it? |
-| **L5** | 🏛️ Critical | Can it pass audit? |
+## Review Protocol
 
----
+1. **Fix Quality Level.** Done when the level (L1–L5, default L3) is stated.
+2. **Enumerate scope.** Resolve Review Scope to a complete file list. Done when the basis and file count are shown.
+3. **Load Rule Packs.** Load all eight packs once and keep them available. Done when every pack file has been read.
+4. **Read and review.** Read each in-scope file completely, applying relevant guidance. Done when every scope file is read, its metrics are recorded, and its findings are traced.
+5. **Whole-scope checks.** Cross-file effects, duplication of knowledge, dependency direction, contracts, and other scope-wide concerns. Done when each check is traced.
+6. **Final Recheck.** Done when it finds no new gap (see Final Recheck).
+7. **Report findings.** Emit the final report (Product Promise).
 
-## Review Workflow
+Scale workers to scope: the main agent alone for a small file set; one subagent for a medium batch; parallel subagents only when independent file groups can run without shared state.
+Explicitly instruct every spawned subagent to load and use this skill and state which Quality Level applies.
+The main agent enumerates the complete scope, assigns file groups, integrates results, performs whole-scope checks, runs Final Recheck, and owns the single Auditable Review Trace; subagents report results back.
 
-Follow this sequence for every review:
+## Auditable Review Trace
 
-1. **Calibrate** — Ask Q1/Q2/Q3 → determine strictness level (or apply L3 fallback)
-2. **Scope** — Confirm what to review: PR diff (changed files + immediate context), module, or specific files. If PR exceeds the level's size limit, flag it as an issue
-3. **Language check** — Identify paradigm; read [language-adjustments.md](references/language-adjustments.md) if language is NOT Java/C#
-4. **Review** — Walk through the 15-Point Checklist against the code
-5. **Classify** — Assign severity to each finding (see Severity Classification below)
+One trace, living in the conversation only. It accounts for:
 
-> **Severity anchoring:** Determine severity from the issue criteria before considering the user's likely reaction.
+- every in-scope file and its actual complete read
+- every computed metric value
+- every required cross-boundary or whole-scope check
+- every Confirmed Violation
+- all known unfinished work
 
-6. **Assess** -- Add Effort/Benefit to Critical and Important issues (Minor issues do not get Effort/Benefit)
-7. **Report** — Generate report using the template
-8. **Verdict** — Apply verdict criteria to reach conclusion
+Update the trace immediately after each completed file read, required check, and Confirmed Violation.
 
-> **Review type adjustments:** For bug fixes, emphasize correctness and regression tests. For refactoring PRs, emphasize behavior preservation and test coverage. For new features, emphasize design and architecture. For test code, relax DRY tolerance.
+The trace records only work actually performed — the goal is complete work, never a complete-looking trace.
 
-> **Priority order:** security > correctness > design > style. Rules serve the code, not vice versa.
+## Final Recheck
 
-> **Completeness:** Do not proceed to Step 5 until every in-scope file has been checked against all 15 checklist points, the Common Code Smells table, and the Red Flags list. Mark points as N/A where legitimately inapplicable, but do not skip them.
+Run Final Recheck before the final response:
 
----
+1. Reconcile Review Scope against the Auditable Review Trace.
+2. Check for missed files, test code, cross-file effects, and required checks, reconsidering all eight pack purposes.
+3. A discovered gap continues the review; the next recheck covers only the newly covered work.
+4. No new gap → Complete Review is reached.
 
-## Strictness Matrix & Metric Thresholds
+## Findings
 
-**Quick reference:**
-- Function length: L2(≤80) → L3(≤50) → L4(≤30) → L5(≤20)
-- Parameter count: L2(≤7) → L3(≤5) → L4(≤3) → L5(≤2)
-- Test coverage: L2(30%) → L3(60%) → L4(80%) → L5(95%)
+A Confirmed Violation needs concrete code evidence and a credible consequence.
+Project-policy violations are ordinary Confirmed Violations under the same evidence rule.
 
-**For complete matrices:** See [positioning.md](references/positioning.md#strictness-matrix)
+Documentation-versus-code contradictions and misleading code comments are findings; code comments and code-related documentation are in review scope.
 
-### ⚠️ Measurement Rules (MUST follow)
+### Finding Severity
 
-1. **Count logic lines only** — exclude docstrings, comments, blank lines
-2. **Metrics are conversation starters, not hard gates**
-3. **Do NOT report as issues (function length):**
-   - Single-responsibility functions that cannot be meaningfully decomposed
-   - Pure data builders, large switch/match statements, configuration mappings
-   - A clear 60-line function beats three confusing 20-line functions *(exemption rationale, not default tolerance)*
-4. **Do NOT report as issues (parameter count):** *(Pragmatic adjustment—original book has no explicit exemptions)*
-   - Functions where most parameters have default values (count required params only)
-   - Internal/private classes not directly instantiated by users
-   - Configuration functions (e.g., `configure_logging(level="INFO", ...)`)
-   - Factory/Builder patterns controlled by framework
-5. **Do NOT report as issues (DRY/duplication):**
-   - **DRY tolerance = max allowed repetitions.** Report when occurrences **exceed** this number:
-     - L5: max 1 → report on 2nd occurrence
-     - L4: max 2 → report on 3rd occurrence
-     - L3: max 3 → report on 4th occurrence
-     - L2: max 4 → report on 5th occurrence
-     - L1: N/A (no limit)
-   - **Accidental duplication** *(all levels)*: Similar code representing different business knowledge—do NOT report even if exceeds tolerance. Quick test: "If one changes, must the other ALWAYS change?" If no → accidental duplication → keep separate.
-   - **Same file** *(L1-L3 only)*: Duplicates within same file are lower risk
-   - See [principles-spectrum.md](references/principles-spectrum.md) for DRY vs WET guidance
+Severity follows the most severe supported consequence:
 
----
+- **Critical** — authorization bypass, sensitive-data disclosure, authoritative-data loss or corruption, unavailable core service, physical harm, substantial financial loss.
+- **Important** — incorrect external behavior, reduced reliability, required workaround, serious performance degradation, concrete maintainability or testing burden.
+- **Minor** — limited local inconvenience or a small maintainability or testing burden.
 
-## Language-Aware Review
+Quality Level decides whether a maintainability concern becomes a Confirmed Violation.
 
-Before reviewing, identify the language paradigm:
+### Report format
 
-| Paradigm | Languages | Clean Code Applicability |
-|----------|-----------|-------------------------|
-| Pure OOP | Java, C# | ✅ Full |
-| Multi-paradigm | TypeScript, Python, Kotlin | ⚠️ Adjust |
-| Functional | Haskell, Elixir, F# | ⚠️ Many rules don't apply |
-| Systems/Composition | Rust, Go | ⚠️ Different patterns |
-
-**For language-specific adjustments:** See [language-adjustments.md](references/language-adjustments.md)
-
----
-
-## 15-Point Review Checklist
-
-### 1. Correctness & Functionality
-
-- [ ] **Logic implements requirements correctly?** (PP-75)
-- [ ] **Boundary conditions and error handling complete?** (CC-153, PP-36)
-- [ ] **Security vulnerabilities?** (PP-72, PP-73)
-
-### 2. Readability & Maintainability
-
-- [ ] **Names reveal intent?** (CC-4, PP-74)
-- [ ] **Functions small and do one thing?** (CC-20, CC-21)
-- [ ] **Comments explain "Why" not "What"?** (CC-39, CC-43)
-
-### 3. Design & Architecture
-
-- [ ] **Follows SRP?** (CA-8, CC-110)
-- [ ] **Avoids duplication (DRY)?** (PP-15, CC-37)
-- [ ] **Dependency direction correct?** (CA-12, CA-31)
-
-### 4. Testing
-
-- [ ] **New code has tests?** (PP-91, CC-194)
-- [ ] **Tests readable and independent?** (CC-102, CC-106)
-
-### 5. Advanced Checks (L3+)
-
-- [ ] **Concurrency safe?** (PP-57, CC-137)
-- [ ] **Security validated?** (PP-72, PP-73)
-- [ ] **Resources released?** (PP-40)
-- [ ] **Algorithm complexity appropriate?** (PP-63, PP-64)
-
----
-
-## Common Code Smells
-
-| Smell | Rule | Quick Check |
-|-------|------|-------------|
-| Long function | CC-20 | Exceeds level threshold? (See Metric Thresholds + Measurement Rules) |
-| Too many params | CC-26, CC-147 | Exceeds level threshold? (See Metric Thresholds + Measurement Rules) |
-| Magic numbers | CC-175 | Unnamed constants? |
-| Feature envy | CC-164 | Using other class's data? |
-| God class | CC-109, CA-8 | Multiple responsibilities? |
-| Train wreck | CC-81, PP-46 | `a.b().c().d()`? |
-
-**For full symptom lookup:** See [quick-lookup.md](references/quick-lookup.md)
-
----
-
-## Red Flags - Investigate Further
-
-> ⚠️ **Language-aware:** Some red flags are paradigm-dependent. Always check [language-adjustments.md](references/language-adjustments.md) first.
-
-If you notice any of these, consult the reference files:
-
-- Switch statements (CC-24, CC-173) — *OOP only; match/when expressions are idiomatic in TS, Rust, Kotlin, FP languages*
-- Null returns/passes (CC-92, CC-93)
-- Commented-out code (CC-58, CC-144)
-- Deep nesting (CC-22, CC-178)
-- Global state (PP-47, PP-48)
-- Inheritance > 2 levels (PP-51)
-
----
-
-## DO NOT Review (Machine's Job)
-
-These should be caught by Linter/Formatter:
-
-- Formatting and indentation (CC-64~77)
-- Basic naming conventions
-- Unused variables/imports (CC-162)
-- Basic syntax errors
-- Missing semicolons/brackets
-
-**Focus on what machines can't:** Logic correctness, design decisions, architectural alignment.
-
----
-
-## Severity Classification
-
-| Level | Criteria | Examples |
-|-------|----------|---------|
-| 🔴 **Critical** | Security vulnerabilities, data loss/corruption risks, logic bugs affecting correctness, crashes on production paths | SQL injection, unvalidated auth, off-by-one on financial calculation |
-| 🟡 **Important** | Design principle violations, metric threshold breaches, maintainability risks, missing tests for critical paths | SRP violation, function with 10 params at L3, no test for core logic |
-| 🔵 **Minor** | Low-impact code quality observations worth noting but not worth blocking a merge | Magic numbers, commented-out code, minor naming issues, deep nesting that doesn't hurt readability |
-
-**Rules:**
-- Security issues are **always** Critical regardless of project level
-- Severity is determined by the issue's *nature*, not by the effort to fix it
-- Items below Minor threshold are not reported -- if an issue isn't worth noting even as Minor, omit it entirely
-
----
-
-## Report Format
-
-> **Before reporting:** Apply Measurement Rules exemptions. Do NOT include exempt items (e.g., pure data builders exceeding line limits) in any issue category—omit them entirely.
-
-> **Empty sections:** If a severity tier has no issues, omit that section entirely from the report. Do not output a section header with "None" or "No issues found."
-
-> **Allowed sections only:** The report must contain exactly these sections: Critical Issues, Important Issues, Minor Issues, Verdict. Do not add any other sections. Do not include praise, strengths, or positive observations anywhere in the report.
-
-> **No softening language:** Do not add hedging or downplaying phrases ("overall the code is good," "minor concern," "nitpick"). State findings directly. Severity labels and factual qualifiers are not softening.
+One heading per severity class with at least one finding, ordered Critical → Important → Minor; order findings under each heading by code location:
 
 ```markdown
-## 📋 Code Review Report
+### Critical
 
-**Project Positioning:** [Level] (e.g., L3 Team)
-**Review Scope:** [files/commits reviewed]
-
-### 🔴 Critical Issues (Must Fix)
-- **[file:line] Issue description**
-  - Rule: XX-## (Rule Name)
-  - Principle: Brief explanation of why this matters
-  - Suggestion: How to fix it
-  - Effort: [Low/Medium/High]
-    - [reason derived from effort questions below]
-  - Benefit: [Low/Medium/High]
-    - [reason derived from benefit questions below]
-
-### 🟡 Important Issues (Should Fix)
-- **[file:line] Issue description**
-  - Rule: XX-## (Rule Name)
-  - Principle: Brief explanation of why this matters
-  - Suggestion: How to fix it
-  - Effort: [Low/Medium/High]
-    - [reason derived from effort questions below]
-  - Benefit: [Low/Medium/High]
-    - [reason derived from benefit questions below]
-
----
-
-- **[file:line] Issue description**
-  - Rule: XX-## (Rule Name)
-  - Principle: Brief explanation of why this matters
-  - Suggestion: How to fix it
-  - Effort: [Low/Medium/High]
-    - [reason derived from effort questions below]
-  - Benefit: [Low/Medium/High]
-    - [reason derived from benefit questions below]
-
-### 🔵 Minor Issues (Nice to Have)
-- **[file:line] Issue description**
-  - Rule: XX-## (Rule Name)
-  - Suggestion: How to improve it
-
-### 📝 Verdict
-[✅ Ready to merge / ⚠️ Needs fixes / 🚫 Major rework needed]
+- `path/to/file:line` Problem summary
+  - Evidence: relevant code and supporting reasoning
+  - Consequence: supported consequence
 ```
 
-> **Before assigning verdict:** Verdict must reflect findings from all scoped files. If any file was skipped, review it now.
-
-### Verdict Criteria
-
-> **Apply the first matching condition from top to bottom.**
-
-| Verdict | Condition |
-|---------|-----------|
-| 🚫 Major rework needed | ≥3 Critical issues OR fundamental design problems (dependency cycles, wrong architectural layer, framework-coupled domain logic) |
-| ⚠️ Needs fixes | Any Critical issue OR >2 Important issues |
-| ✅ Ready to merge | Zero Critical AND ≤2 Important issues |
-
-### Effort & Benefit (Critical/Important only)
-
-Add Effort and Benefit lines to each Critical and Important issue to help teams prioritize fix order. Each rating must include 1-3 nested bullet reasons derived from the questions below.
-
-- **Effort** — how hard to fix
-  - Low: a few lines, < 30 min
-  - Medium: moderate refactor, 30 min - 4 h
-  - High: architectural change or wide-reaching modification, > 4 h
-- **Benefit** — value gained after fixing (trigger frequency × impact scope)
-  - High: hot path + severe consequence (data loss, security breach, outage)
-  - Medium: common path + moderate impact, or edge case + severe consequence
-  - Low: edge case + minor impact (UI glitch, degraded experience)
-
-**Before assigning ratings, reason through these questions:**
-
-For Effort:
-- How many files need changes? (1 file = likely Low, 3+ files = likely Medium+)
-- Does the fix cross module/layer boundaries? (yes = Medium+)
-- Does existing test coverage need updating? (significant test changes = add one level)
-
-For Benefit:
-- Is this code on a hot path (called frequently)? (yes = High trigger frequency)
-- What's the worst-case consequence if this issue triggers? (data loss/security = High impact)
-- Can users work around it? (no workaround = higher impact)
-
-If uncertain, default to the **more extreme** rating (Low or High), not Medium. Medium should be a deliberate choice, not a fallback.
-
-Express your reasoning as nested bullets under each rating line. Simple issues need 1 bullet; complex issues need 2-3 bullets. Reason bullets must derive from the questions above -- do not use generic justifications.
-
-### Report Example
-
-```markdown
-## 📋 Code Review Report
-
-**Project Positioning:** L3 Team
-**Review Scope:** src/services/user.ts, src/utils/helpers.ts
-
-### 🔴 Critical Issues (Must Fix)
-- **[user.ts:45] SQL query built with string concatenation**
-  - Rule: PP-72 (Keep It Simple and Minimize Attack Surfaces)
-  - Principle: String concatenation in SQL queries creates injection vulnerabilities
-  - Suggestion: Use parameterized queries: `db.query('SELECT * FROM users WHERE id = ?', [userId])`
-  - Effort: Low
-    - Single file change, no cross-module impact
-  - Benefit: High
-    - Hot path -- every user query hits this code
-    - Data loss/breach risk if exploited
-
-### 🟡 Important Issues (Should Fix)
-- **[helpers.ts:120] Function `processUserData` has 8 parameters**
-  - Rule: CC-26 (Function Arguments) + CC-147 (Too Many Arguments)
-  - Principle: Many parameters increase cognitive load and make testing difficult. L3 threshold is ≤5.
-  - Suggestion: Group related parameters into a `UserDataOptions` object
-  - Effort: Medium
-    - Touches callers across 3 files
-    - Test updates needed for new signature
-  - Benefit: Low
-    - Internal utility, not on hot path
-    - Users unaffected functionally
-
----
-
-- **[user.ts:200] Duplicate validation logic (3rd occurrence)**
-  - Rule: PP-15 (DRY) + CC-37 (Don't Repeat Yourself)
-  - Principle: L3 allows max 3 repetitions. This is the 3rd occurrence -- consider extracting.
-  - Suggestion: Extract to `validateUserInput(input)` function in utils
-  - Effort: Low
-    - Extract to shared function, update 3 call sites in same module
-  - Benefit: Medium
-    - Common path -- validation runs on every user mutation
-    - Drift risk if logic diverges across copies
-
-### 🔵 Minor Issues (Nice to Have)
-- **[helpers.ts:42] Magic number 86400 used without named constant**
-  - Rule: CC-175 (Magic Numbers)
-  - Suggestion: Extract to `const SECONDS_PER_DAY = 86400`
-
-### 📝 Verdict
-⚠️ Needs fixes — Critical SQL injection issue must be addressed before merge
-```
-
----
-
-## When to Load References
-
-| Reference File | Load When |
-|----------------|-----------|
-| [language-adjustments.md](references/language-adjustments.md) | Language is NOT Java/C# — always check for non-OOP paradigms |
-| [positioning.md](references/positioning.md) | User wants detailed level explanation or edge-case mapping |
-| [principles-spectrum.md](references/principles-spectrum.md) | Encountering DRY/YAGNI/abstraction-timing edge cases |
-| [quick-lookup.md](references/quick-lookup.md) | Symptom spotted that isn't covered by the 15-point checklist |
-| [clean-code.md](references/clean-code.md) | Need to cite or explain a **CC-##** rule in detail |
-| [clean-architecture.md](references/clean-architecture.md) | Need to cite or explain a **CA-##** rule in detail |
-| [pragmatic-programmer.md](references/pragmatic-programmer.md) | Need to cite or explain a **PP-##** rule in detail |
-| [principles-glossary.md](references/principles-glossary.md) | Need full definition of SOLID, LoD, CQS, or component principles |
-
-**Do NOT load all references at once.** Use the rule prefix (PP/CC/CA) to pick the right file.
-
----
-
-## Rule Reference Codes
-
-| Prefix | Source | Reference |
-|--------|--------|-----------|
-| **PP-##** | The Pragmatic Programmer | [pragmatic-programmer.md](references/pragmatic-programmer.md) |
-| **CC-##** | Clean Code | [clean-code.md](references/clean-code.md) |
-| **CA-##** | Clean Architecture | [clean-architecture.md](references/clean-architecture.md) |
-
----
-
-## Common Principles Quick Reference
-
-| Acronym | Meaning | Rule |
-|---------|---------|------|
-| YAGNI | You Aren't Gonna Need It | PP-43 |
-| KISS | Keep It Simple | CC-130, PP-72 |
-| DRY | Don't Repeat Yourself | PP-15, CC-37 |
-| SOLID | 5 Design Principles | CA-8~12 |
-| LoD | Law of Demeter | PP-46, CC-80 |
-
-**Component Principles (REP, CCP, CRP, ADP, SDP, SAP):** See [principles-glossary.md](references/principles-glossary.md)
-
-**For DRY vs WET guidance:** See [principles-spectrum.md](references/principles-spectrum.md)
-
+Put citations inside Evidence only when the finding depends on the external source.

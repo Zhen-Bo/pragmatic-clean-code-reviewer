@@ -1,6 +1,6 @@
 # Language-Specific Rule Adjustments
 
-Clean Code and related books are primarily written with Java/OOP in mind. This guide explains how to adjust rules for different programming paradigms.
+Rule Corpus guidance: Clean Code and related books assume Java/OOP. Adjust rules for the language paradigm under review. Rule IDs remain optional references.
 
 ## Table of Contents
 

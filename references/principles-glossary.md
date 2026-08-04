@@ -1,6 +1,6 @@
 # Principles Glossary
 
-Quick reference for commonly used software engineering principles and their rule mappings.
+Quick reference for established software engineering principles. Rule IDs (CC-*, CA-*, PP-*) are optional references for findings, never required fields. Sources guide review; they never close the list of reportable problems.
 
 ## Table of Contents
 
@@ -8,7 +8,9 @@ Quick reference for commonly used software engineering principles and their rule
 - [SOLID Principles](#solid-principles)
 - [Design Principles](#design-principles)
 - [Testing Principles](#testing-principles)
+- [Component Principles](#component-principles)
 - [Architecture Principles](#architecture-principles)
+- [Quick Lookup Table](#quick-lookup-table)
 
 ---
 
@@ -19,8 +21,8 @@ Quick reference for commonly used software engineering principles and their rule
 | **YAGNI** | You Aren't Gonna Need It | Don't build what you don't need yet | PP-43 |
 | **KISS** | Keep It Simple, Stupid | Simplest solution that works | CC-130, PP-72 |
 | **DRY** | Don't Repeat Yourself | Knowledge should have single source | PP-15, CC-37, CC-128, CC-155 |
-| **WET** | Write Everything Twice | Acceptable duplication before abstraction | See [principles-spectrum.md](principles-spectrum.md) |
-| **AHA** | Avoid Hasty Abstractions | Don't abstract too early | See [principles-spectrum.md](principles-spectrum.md) |
+| **WET** | Write Everything Twice | Duplication can stay until the pattern is clear | — |
+| **AHA** | Avoid Hasty Abstractions | Don't abstract before the concept is real | — |
 
 ### YAGNI - You Aren't Gonna Need It
 
@@ -67,9 +69,16 @@ Quick reference for commonly used software engineering principles and their rule
 - If one changes, must the other change too?
 - Is the abstraction clear and well-named?
 
-**Important:** DRY is about *knowledge*, not *code text*. Two pieces of code that look the same but represent different business rules should NOT be merged.
+**Important:** DRY is about *knowledge*, not *code text*. Two pieces that look the same but encode different business rules should stay separate (accidental similarity). Two pieces that must always change together share knowledge and need one source (true duplication). See also CA-25.
 
-**Related:** PP-15, CC-37, CC-128, CC-155
+**Rule of Three (design heuristic):** the first copy teaches little; the second hints; the third often reveals what is shared and what varies. Quality Level thresholds calibrate how hard you look for confirmed same-knowledge occurrences; a count is never a finding by itself.
+
+**Before abstracting, prefer all of:**
+1. Single clear business concept (not Utils/Helper/Common).
+2. Change coupling: one change forces the others.
+3. Named abstraction that reduces total complexity.
+
+**Related:** PP-15, CC-37, CC-128, CC-155, CA-25
 
 ---
 
@@ -353,8 +362,8 @@ I = 1: Maximally unstable (no dependents, many dependencies)
 |-----------|-----------|-------|
 | **Dependency Rule** | Dependencies point inward toward core | CA-31 |
 | **Screaming Architecture** | Architecture should scream its purpose | CA-30 |
-| **Plugin Architecture** | Details as plugins to core | CA-48 |
-| **Humble Object** | Isolate hard-to-test code | CA-32, CA-47 |
+| **Plugin Architecture** | Details as plugins to core | CA-47 |
+| **Humble Object** | Isolate hard-to-test code | CA-32, CA-46 |
 
 ### Dependency Rule
 

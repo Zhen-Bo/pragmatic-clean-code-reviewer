@@ -1,6 +1,6 @@
 # The Pragmatic Programmer Reference
 
-Complete rule reference from *The Pragmatic Programmer* (20th Anniversary Edition) by David Thomas and Andrew Hunt.
+Rule Corpus summary from *The Pragmatic Programmer* (20th Anniversary Edition) by David Thomas and Andrew Hunt. Rule IDs are optional references for findings, never required fields.
 
 ## Table of Contents
 

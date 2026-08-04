@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2026-08-04
+
+### Added
+
+- **Auditable Review Trace + Final Recheck**: one trace accounts for every file read, metric, check, and finding; the final report is emitted only after Complete Review, or labeled a partial review on user stop.
+- **Eight Rule Packs** under `references/` (design and maintainability, testing, security and privacy, contracts and compatibility, reliability and operations, dependencies and build, documentation and generated artifacts, research reproducibility), linked from SKILL.md together with the book-based Rule Corpus files.
+- **README notices** for token cost and large-scope context limits.
+
+### Changed
+
+- **Review contract rewritten (v2)**: pick a Quality Level L1–L5 directly in the request (default L3); inspection triggers and counting rules are explicit; severity (Critical / Important / Minor) follows the supported consequence only.
+- **Findings**: every Confirmed Violation carries code evidence and a credible consequence; rule IDs are optional pointers.
+- `scripts/validate_skill.py` rewritten as deterministic v2 contract checks.
+
+### Removed
+
+- 3+4+2 positioning questionnaire, verdict machinery, profiles, waivers, threshold overrides, and the emoji report format.
+- `references/positioning.md`, `references/principles-spectrum.md`, `references/quick-lookup.md`, and the top-level `docs/` user guides (features, metrics, project-positioning, rule-sources).
+
 ## 1.3.1
 
 ### Added

@@ -1,178 +1,240 @@
+<h1 align="center">Pragmatic Code Review</h1>
+
 <p align="center">
-  <img src="https://img.shields.io/badge/Clean%20Code-Enforced-brightgreen?style=for-the-badge&logo=checkmarx" alt="Clean Code">
-  <img src="https://img.shields.io/badge/Clean%20Architecture-Verified-blue?style=for-the-badge&logo=blueprint" alt="Clean Architecture">
-  <img src="https://img.shields.io/badge/Pragmatic%20Programmer-Applied-orange?style=for-the-badge&logo=bookstack" alt="Pragmatic Programmer">
+  <img src="https://img.shields.io/badge/Pragmatic%20Programmer-Applied-orange?style=for-the-badge&logo=bookstack" alt="Pragmatic Programmer — Applied">
+  <img src="https://img.shields.io/badge/Clean%20Code-Applied-brightgreen?style=for-the-badge&logo=checkmarx" alt="Clean Code — Applied">
+  <img src="https://img.shields.io/badge/Clean%20Architecture-Applied-blue?style=for-the-badge&logo=blueprint" alt="Clean Architecture — Applied">
 </p>
 
-<h1 align="center">Pragmatic Clean Code Reviewer</h1>
+<p align="center">
+  <img src="https://img.shields.io/badge/Beyond%20the%20Books-Current%20Primary%20Sources-9cf?style=flat-square" alt="Beyond the Books — Current Primary Sources">
+  <img src="https://img.shields.io/badge/License-MIT-blueviolet?style=flat-square" alt="License — MIT">
+</p>
 
 <p align="center">
-  <strong>A Claude Code skill for conducting rigorous code reviews based on software engineering classics</strong>
+  <strong>An Agent Skill for code and architecture review — for Claude Code, Codex, OpenCode, and compatible Agent Skills runners.</strong>
 </p>
 
 <p align="center">
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
-  <a href="#features">Features</a> •
-  <a href="docs/project-positioning.md">Project Positioning</a> •
-  <a href="docs/rule-sources.md">Rule Sources</a>
+  <a href="#eight-rule-packs">Rule Packs</a> •
+  <a href="#review-flow">Review Flow</a> •
+  <a href="#findings">Findings</a> •
+  <a href="#known-limitations">Limitations</a> •
+  <a href="#license">License</a>
 </p>
 
 ---
 
-## Overview
+## Before you use this skill
 
-This skill transforms Claude Code into a **strict code review expert** that evaluates your code against 350+ rules from three foundational software engineering books:
+> [!WARNING]
+> **Token cost.** This skill consumes significantly more tokens than a normal review skill. It loads all eight Rule Packs, reads every in-scope file completely, and keeps an Auditable Review Trace through the conversation. Plan for that cost.
 
-| Book | Author | Rules |
-|------|--------|-------|
-| 📗 **The Pragmatic Programmer** | David Thomas & Andrew Hunt | 100 Tips |
-| 📘 **Clean Code** | Robert C. Martin | 202 Rules |
-| 📙 **Clean Architecture** | Robert C. Martin | 48 Principles |
+> [!CAUTION]
+> **Large scopes and context limits.** A large Review Scope may hit auto-compaction and lose review state. Split the scope into smaller reviews, or use subagents so the main agent can integrate results without overflowing context.
 
-> **Philosophy:** Let machines handle formatting; humans focus on logic and design.
+---
+
+## What it promises
+
+**Complete Review** means all known required review work is accounted for in one Auditable Review Trace, and Final Recheck found no unfinished work. The final report is emitted only after that.
+
+The final report claims only what the Auditable Review Trace evidences: confirmed findings, completed work, and remaining uncertainty. It is not a defect-free guarantee, a certification, or a complete security audit, and it contains no merge recommendation — the merge decision stays with you.
+
+| | |
+|---|---|
+| 🔍 **Complete Review** | All required review work accounted for in one Auditable Review Trace, with a Final Recheck before the report |
+| 📦 **Eight Rule Packs** | Design, testing, security, contracts, reliability, dependencies, docs, and research — loaded once per review |
+| 🎚️ **Quality Levels L1–L5** | You pick the strictness in the request; L3 applies by default |
+| 🧭 **Scope-first** | Your target is resolved into a complete file list, shown with its basis before review starts |
+| 📋 **Severity-ordered reports** | Critical → Important → Minor, every finding with evidence and consequence |
+| 🤝 **Scales with subagents** | Parallel workers for large independent file groups; the main agent owns the single trace |
 
 ---
 
 ## Installation
 
-### Quick Install
+Clone into your harness skills directory:
 
-| Tool | Command |
-|------|---------|
-| **Claude Code** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.claude/skills/pragmatic-clean-code-reviewer` |
-| **OpenCode** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.config/opencode/skills/pragmatic-clean-code-reviewer` |
-| **Codex** | `git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git ~/.codex/skills/pragmatic-clean-code-reviewer` |
+```bash
+git clone https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer.git <skills-directory>/pragmatic-code-review
+```
 
-### From GitHub Release
+| Harness | Skills directory |
+|---------|------------------|
+| **Claude Code** | `~/.claude/skills/` |
+| **Codex** | `~/.codex/skills/` |
+| **OpenCode** | `~/.config/opencode/skills/` |
+| **Other Agent Skills runner** | your harness's skills directory |
 
-1. Go to [Releases](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/releases)
-2. Download the latest `.skill` or `.zip` file
-3. Extract to your skills directory (see table above)
+Or download a release package from [Releases](https://github.com/Zhen-Bo/pragmatic-clean-code-reviewer/releases) and extract it there.
 
 ---
 
 ## Usage
 
-### Invoke the Skill
+### Invoke
+
+By name (slash invocation where supported) or natural language:
 
 ```
-/pragmatic-clean-code-reviewer
+/pragmatic-code-review
 ```
 
-### Or Use Natural Language
+Examples:
 
-- *"Review my code for code smells"*
-- *"Check if this PR is ready to merge"*
-- *"Audit the architecture of this module"*
+- *"Review `src/auth` at L4"*
+- *"Code review of this PR — Quality Level L3"*
+- *"Architecture review of the payments module"*
+- *"Refactor review — focus on maintainability"*
 
----
+### Review Scope
 
-## Features
+You name the target. The skill resolves it with repository tools into a complete file list before review, and shows the scope basis and file count at start.
 
-| Feature | Description |
-|---------|-------------|
-| 🎯 **3+4+2 Positioning System** | Questionnaire determines L1-L5 strictness |
-| 🏷️ **Five Strictness Levels** | From L1 (Lab) to L5 (Critical) |
-| ✅ **15-Point Checklist** | Systematic code evaluation |
-| 📋 **Standardized Reports** | Clear, consistent output format |
-| 🔧 **Fix Effort & Benefit** | Effort/Benefit analysis with reasoning guidance |
-| 📝 **8-Step Workflow** | Explicit review sequence with deterministic verdict |
-| 🔖 **Rule Citations** | Every issue references PP/CC/CA rules |
-| 🌐 **Language-Aware** | Adjusts rules for different paradigms |
+| Situation | Behavior |
+|-----------|----------|
+| Scope given | Review that target only |
+| Scope absent | Ask once for Review Scope and wait (only user interaction) |
+| Target does not exist | Empty scope; completed review reporting that fact |
 
-👉 **[See detailed features →](docs/features.md)**
+Every in-scope path is read directly and fully. Paths ignored by `.gitignore` are never read — they may hold secrets.
 
----
+### Quality Level
 
-## Quick Reference
+Pick L1–L5 directly in the request. If you pick nothing, **L3** applies and is stated before review. Only your stated level applies for the whole review.
 
-### Strictness Levels
+Lower levels relax only maintainability strictness. Correctness, security, authorization, data integrity, contracts, and repository policy stay full obligations at every level.
 
-| Level | Name | Key Question |
-|-------|------|--------------|
-| **L1** | 🧪 Lab | Does it run? |
-| **L2** | 🛠️ Tool | Understandable next month? |
-| **L3** | 🤝 Team | Can teammates take over? |
-| **L4** | 🚀 Infra | Others suffer if broken? |
-| **L5** | 🏛️ Critical | Can it pass audit? |
+Inspection triggers start closer inspection; they are not findings by themselves:
 
-👉 **[Full positioning guide →](docs/project-positioning.md)**
+| Inspection trigger | L1 | L2 | L3 | L4 | L5 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Function effective logic lines | none | 80 | 50 | 30 | 20 |
+| Required parameters | none | 7 | 5 | 4 | 3 |
+| Maximum nesting depth | none | 5 | 4 | 3 | 2 |
+| Confirmed occurrences of the same duplicated knowledge | none | 5 | 3 | 2 | 2 |
+| Source-file lines | none | 800 | 500 | 300 | 200 |
 
-### Rule Prefixes
+`none` means no numeric trigger; concrete structural problems remain reportable at every level.
 
-| Prefix | Source |
-|--------|--------|
-| **PP-##** | The Pragmatic Programmer |
-| **CC-##** | Clean Code |
-| **CA-##** | Clean Architecture |
+<details>
+<summary><strong>Counting rules (summary)</strong></summary>
 
-👉 **[Full rule sources →](docs/rule-sources.md)**
+- **Logic lines** — every nonblank, non-comment line
+- **Required parameters** — caller-mandatory only
+- **Nesting** — function body starts at depth 0; each control level adds 1
+- **Duplicated knowledge** — reviewer-judged same knowledge (semantic)
+- **File lines** — physical lines
 
----
+Full rules live in [SKILL.md](SKILL.md).
 
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [Features](docs/features.md) | Detailed feature explanations |
-| [Project Positioning](docs/project-positioning.md) | 3+4+2 system & L1-L5 mapping |
-| [Metrics & Code Smells](docs/metrics.md) | Thresholds and exemptions |
-| [Rule Sources](docs/rule-sources.md) | Book summaries and key principles |
+</details>
 
 ---
 
-## File Structure
+## Eight Rule Packs
+
+All eight load once at review start and stay available for the whole review. Every problem with evidence and a consequence is reportable, whether or not a pack names it.
+
+1. **Design and Maintainability**
+2. **Testing**
+3. **Security and Privacy**
+4. **Contracts and Compatibility**
+5. **Reliability and Operations**
+6. **Dependencies and Build**
+7. **Documentation and Generated Artifacts**
+8. **Research Reproducibility**
+
+Detailed guidance lives under `references/`. Rule IDs are optional pointers into that guidance.
+
+Guidance draws on *The Pragmatic Programmer*, *Clean Code*, *Clean Architecture*, current primary sources, and established principles.
+
+---
+
+## Review flow
+
+1. Fix Quality Level (default L3).
+2. Enumerate Review Scope; show basis and file count.
+3. Load all eight Rule Packs.
+4. Read each in-scope file completely; record work in the Auditable Review Trace.
+5. Run whole-scope checks (cross-file effects, contracts, and similar).
+6. **Final Recheck** — reconcile scope against the trace; a gap continues the review.
+7. Report findings only after Complete Review (or a labeled partial review if you stop early).
+
+The Auditable Review Trace lives in the conversation only. The trace records only work actually performed — the goal is complete work, never a complete-looking trace.
+
+For large scopes, workers scale to scope: the main agent alone for small file sets, one subagent for a medium batch, parallel subagents only for independent file groups. Each subagent loads this skill and uses the same Quality Level. The main agent owns the single trace.
+
+---
+
+## Findings
+
+A **Confirmed Violation** needs concrete code evidence and a credible consequence; rule IDs are optional.
+
+**Finding Severity** follows the most severe supported consequence:
+
+| Severity | Examples of supported consequence |
+|----------|-----------------------------------|
+| **Critical** | Authorization bypass, sensitive-data disclosure, authoritative-data loss or corruption, unavailable core service, physical harm, substantial financial loss |
+| **Important** | Incorrect external behavior, reduced reliability, required workaround, serious performance degradation, concrete maintainability or testing burden |
+| **Minor** | Limited local inconvenience or a small maintainability or testing burden |
+
+Report format — one heading per severity class, ordered Critical → Important → Minor, then by code location:
+
+```markdown
+### Critical
+
+- `path/to/file:line` Problem summary
+  - Evidence: relevant code and supporting reasoning
+  - Consequence: supported consequence
+```
+
+Citations go inside Evidence only when the finding depends on an external source. Suspected problems that repository evidence cannot settle are reported with open uncertainty for you to rule out. Documentation-versus-code contradictions and misleading code comments are findings.
+
+---
+
+## File structure
 
 ```
-pragmatic-clean-code-reviewer/
-├── SKILL.md                # Main skill (for AI)
-├── README.md               # This file
-├── CHANGELOG.md            # Release history
-├── docs/                   # Detailed documentation (for humans)
-│   ├── features.md
-│   ├── project-positioning.md
-│   ├── metrics.md
-│   └── rule-sources.md
-└── references/             # Rule references (for AI)
-    ├── clean-code.md
-    ├── clean-architecture.md
-    ├── pragmatic-programmer.md
-    └── ...
+pragmatic-code-review/
+├── SKILL.md          # Review contract (for the agent)
+├── README.md         # This file
+├── CHANGELOG.md
+├── LICENSE
+├── scripts/
+│   └── validate_skill.py
+└── references/       # Rule Pack guidance and Rule Corpus
 ```
 
 ---
 
-## Contributing
+## Known limitations
 
-Contributions are welcome! Please feel free to:
+This skill is prompt-only. It has no external verifier.
 
-- 🐛 Report issues
-- 💡 Suggest improvements
-- 🔧 Submit pull requests
+- **The Auditable Review Trace is self-reported.** Final Recheck reconciles scope against the trace inside the same conversation. That raises the cost of faking completion; it is not a proof of comprehension.
+- **Finding quality is model quality.** The contract bounds what must be checked and what evidence a finding must carry. It cannot make a model notice a defect it does not understand.
+- **Context boundaries end the trace.** There is no resumable review across compaction or new sessions. If auto-compaction triggers mid-review, review state is silently lost and the final report may be incomplete or misstate what was actually reviewed. Split large scopes or use subagents (see the notice at the top).
 
 ---
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
-
----
+MIT License — see [LICENSE](LICENSE).
 
 ## Credits
 
-Based on principles from:
-- 📗 *"The Pragmatic Programmer"* by David Thomas and Andrew Hunt
-- 📘 *"Clean Code"* by Robert C. Martin
-- 📙 *"Clean Architecture"* by Robert C. Martin
+Principles drawn from:
+
+- 📗 *The Pragmatic Programmer* by David Thomas and Andrew Hunt
+- 📘 *Clean Code* by Robert C. Martin
+- 📙 *Clean Architecture* by Robert C. Martin
 
 ---
 
 <p align="center">
-  <sub>Built with principles from software engineering classics</sub>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Made%20for-Claude%20Code-blueviolet?style=flat-square" alt="Made for Claude Code">
-  <img src="https://img.shields.io/github/license/Zhen-Bo/pragmatic-clean-code-reviewer?style=flat-square" alt="License">
+  <sub>Built on principles from software engineering classics. The merge decision stays with you.</sub>
 </p>

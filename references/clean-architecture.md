@@ -1,6 +1,6 @@
 # Clean Architecture Reference
 
-Complete rule reference from *Clean Architecture* by Robert C. Martin.
+Rule Corpus summary from *Clean Architecture* by Robert C. Martin. Rule IDs are optional references for findings, never required fields.
 
 ## Table of Contents
 

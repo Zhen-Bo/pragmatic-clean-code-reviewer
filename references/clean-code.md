@@ -1,8 +1,8 @@
 # Clean Code Reference
 
-Complete rule reference from *Clean Code* by Robert C. Martin.
+Rule Corpus summary from *Clean Code* by Robert C. Martin. Rule IDs are optional references for findings, never required fields.
 
-> **Note:** CC-64 to CC-77 (Formatting chapter) are intentionally omitted. Formatting should be handled by automated tools (linters/formatters), not human reviewers.
+> **Note:** CC-64 to CC-77 (Formatting chapter) are intentionally omitted. Formatting is tool-owned work (linters/formatters), not runtime review guidance.
 
 ## Table of Contents
 

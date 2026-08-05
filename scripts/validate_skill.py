@@ -661,7 +661,7 @@ def check_threshold_table(skill_path: Path) -> tuple[bool, list[str]]:
         ("L3 parameters", re.compile(r"Required parameters.*\b5\b")),
         ("L3 nesting", re.compile(r"Maximum nesting depth.*\b4\b")),
         ("L3 duplication", re.compile(
-            r"Confirmed occurrences of the same duplicated knowledge.*\b3\b"
+            r"Confirmed occurrences of the same duplicated knowledge.*\b2\b"
         )),
         ("L3 file lines", re.compile(r"Source-file lines.*\b500\b")),
     )
@@ -839,7 +839,7 @@ Default L3. Inspection triggers:
 | Function effective logic lines | none | 80 | 50 | 30 | 20 |
 | Required parameters | none | 7 | 5 | 4 | 3 |
 | Maximum nesting depth | none | 5 | 4 | 3 | 2 |
-| Confirmed occurrences of the same duplicated knowledge | none | 5 | 3 | 2 | 2 |
+| Confirmed occurrences of the same duplicated knowledge | none | 3 | 2 | 1 | 1 |
 | Source-file lines | none | 800 | 500 | 300 | 200 |
 
 `none` means no numeric trigger; concrete structural problems remain reportable at every level.

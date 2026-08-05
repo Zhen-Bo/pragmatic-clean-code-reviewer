@@ -7,7 +7,7 @@ description: >
   Do not use for implementing fixes, writing new code, or lint/format-only passes.
 license: MIT
 metadata:
-  version: 2.0.0
+  version: 2.1.0
 ---
 
 # Pragmatic Code Review
@@ -40,24 +40,24 @@ Apply only the user-stated Quality Level, L1–L5; when none is supplied, apply 
 Repository-policy breaches are ordinary findings under that level.
 Lower levels relax only maintainability strictness.
 
-Inspection triggers — the only numeric triggers; a breach starts closer inspection and is not a finding by itself:
+Inspection triggers — the only numeric triggers. A breach is a measured value strictly greater than the trigger at the applied Quality Level; a value equal to the trigger is not a breach. Every breach is a Confirmed Violation:
 
 | Inspection trigger | L1 | L2 | L3 | L4 | L5 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Function effective logic lines | none | 80 | 50 | 30 | 20 |
 | Required parameters | none | 7 | 5 | 4 | 3 |
 | Maximum nesting depth | none | 5 | 4 | 3 | 2 |
-| Confirmed occurrences of the same duplicated knowledge | none | 5 | 3 | 2 | 2 |
+| Confirmed occurrences of the same duplicated knowledge | none | 3 | 2 | 1 | 1 |
 | Source-file lines | none | 800 | 500 | 300 | 200 |
 
-`none` means no numeric trigger; concrete structural problems remain reportable at every level.
+`none` means no numeric trigger; concrete structural problems remain reportable at every level. On a metric axis that has a numeric trigger, a measured value at or below the trigger is not a finding.
 
 ### Counting rules
 
-1. **Logic lines** — every nonblank, non-comment line.
+1. **Logic lines** — each simple statement and each control-flow clause header counts once, however many physical lines it spans. Docstrings are documentation, not logic.
 2. **Required parameters** — caller-mandatory parameters only (excludes defaults, variadic parameters, receiver, and type parameters).
 3. **Nesting** — function body is depth 0; each control level adds 1.
-4. **Duplicated knowledge** — reviewer-judged same-knowledge occurrences (semantic, not clone detection). The threshold calibrates confirmation effort, not an automatic finding.
+4. **Duplicated knowledge** — reviewer-judged same-knowledge occurrences (semantic, not clone detection). A confirmed count strictly greater than the level's trigger is a Confirmed Violation.
 5. **File lines** — physical lines of the source file.
 
 ## Rule Packs
@@ -120,7 +120,7 @@ Run Final Recheck before the final response:
 
 ## Findings
 
-A Confirmed Violation needs concrete code evidence and a credible consequence.
+A Confirmed Violation needs concrete code evidence and a credible consequence. For an inspection-trigger breach, the measurement (metric, measured value, trigger value, location) is the evidence; no separate consequence sentence is required.
 Project-policy violations are ordinary Confirmed Violations under the same evidence rule.
 
 Documentation-versus-code contradictions and misleading code comments are findings; code comments and code-related documentation are in review scope.
@@ -133,7 +133,9 @@ Severity follows the most severe supported consequence:
 - **Important** — incorrect external behavior, reduced reliability, required workaround, serious performance degradation, concrete maintainability or testing burden.
 - **Minor** — limited local inconvenience or a small maintainability or testing burden.
 
-Quality Level decides whether a maintainability concern becomes a Confirmed Violation.
+An inspection-trigger breach with only the measurement as evidence is **Important** (concrete maintainability burden). Raise severity only when a stronger supported consequence applies; never Critical from the metric alone.
+
+Quality Level decides whether a maintainability concern becomes a Confirmed Violation, including by whether a measured metric is strictly greater than its trigger.
 
 ### Report format
 

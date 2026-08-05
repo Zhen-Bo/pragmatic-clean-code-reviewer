@@ -38,7 +38,7 @@ Show the scope basis and file count at review start.
 
 Apply only the user-stated Quality Level, L1–L5; when none is supplied, apply L3 and state it before review.
 Repository-policy breaches are ordinary findings under that level.
-Lower levels relax only maintainability strictness.
+A level relaxes only what the trigger table and the rule packs explicitly state for it.
 
 Inspection triggers — the only numeric triggers. A breach is a measured value strictly greater than the trigger at the applied Quality Level; a value equal to the trigger is not a breach. Every breach is a Confirmed Violation:
 

@@ -108,7 +108,7 @@ Every in-scope path is read directly and fully. Paths ignored by `.gitignore` ar
 
 Pick L1–L5 directly in the request. If you pick nothing, **L3** applies and is stated before review. Only your stated level applies for the whole review.
 
-Lower levels relax only maintainability strictness. Correctness, security, authorization, data integrity, contracts, and repository policy stay full obligations at every level.
+A level relaxes only what the trigger table and the rule packs explicitly state for it — for example, testing findings are reported only at L3 and above. Correctness, security, authorization, data integrity, contracts, and repository policy stay full obligations at every level.
 
 Inspection triggers: a measured value strictly greater than the trigger at the applied level is a Confirmed Violation; equal to the trigger is not a breach:
 

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Inspection-trigger breaches are findings**: measured value strictly greater than the trigger at the applied Quality Level is a Confirmed Violation (equal is not a breach); evidence is the measurement; bare breach severity defaults to Important. Replaces "starts closer inspection and is not a finding by itself".
 - **Duplication trigger row**: Confirmed occurrences of the same duplicated knowledge is now L1 none / L2 3 / L3 2 / L4 1 / L5 1 (was none / 5 / 3 / 2 / 2); L4 and L5 zero-tolerate a second confirmed copy.
 - **At-or-below trigger is not a finding**: on a metric axis with a numeric trigger, a measured value at or below the trigger is not a finding (clarifies the triggers footnote).
+- **Level relaxation is explicit**: "Lower levels relax only maintainability strictness" is replaced by "A level relaxes only what the trigger table and the rule packs explicitly state for it"; the testing pack now states "Report testing findings only at L3 and above", so L1/L2 reviews no longer report missing, weak, or misleading tests.
 
 ## 2.0.0 - 2026-08-04
 

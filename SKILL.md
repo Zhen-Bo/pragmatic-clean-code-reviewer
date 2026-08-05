@@ -70,7 +70,7 @@ Review Protocol step 3 loads all eight packs:
 4. [Contracts and Compatibility](references/contracts-and-compatibility.md)
 5. [Reliability and Operations](references/reliability-and-operations.md)
 6. [Dependencies and Build](references/dependencies-and-build.md)
-7. [Documentation and Generated Artifacts](references/documentation-and-generated-artifacts.md)
+7. [Documentation](references/documentation.md)
 8. [Research Reproducibility](references/research-reproducibility.md)
 
 Report every problem with evidence and consequence, whether or not a pack names it — including correctness, security, authorization, data integrity, and repository contracts on every review.

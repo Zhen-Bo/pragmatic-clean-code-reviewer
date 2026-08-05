@@ -147,7 +147,7 @@ All eight load once at review start and stay available for the whole review. Eve
 4. **Contracts and Compatibility**
 5. **Reliability and Operations**
 6. **Dependencies and Build**
-7. **Documentation and Generated Artifacts**
+7. **Documentation**
 8. **Research Reproducibility**
 
 Detailed guidance lives under `references/`. Rule IDs are optional pointers into that guidance.

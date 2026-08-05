@@ -70,7 +70,7 @@ RULE_PACKS: tuple[tuple[str, str], ...] = (
     ("Contracts and Compatibility", "references/contracts-and-compatibility.md"),
     ("Reliability and Operations", "references/reliability-and-operations.md"),
     ("Dependencies and Build", "references/dependencies-and-build.md"),
-    ("Documentation and Generated Artifacts", "references/documentation-and-generated-artifacts.md"),
+    ("Documentation", "references/documentation.md"),
     ("Research Reproducibility", "references/research-reproducibility.md"),
 )
 
@@ -852,7 +852,7 @@ Default L3. Inspection triggers:
 4. [Contracts and Compatibility](references/contracts-and-compatibility.md)
 5. [Reliability and Operations](references/reliability-and-operations.md)
 6. [Dependencies and Build](references/dependencies-and-build.md)
-7. [Documentation and Generated Artifacts](references/documentation-and-generated-artifacts.md)
+7. [Documentation](references/documentation.md)
 8. [Research Reproducibility](references/research-reproducibility.md)
 
 Supporting: [clean-code.md](references/clean-code.md), [clean-architecture.md](references/clean-architecture.md), [pragmatic-programmer.md](references/pragmatic-programmer.md), [principles-glossary.md](references/principles-glossary.md), [language-adjustments.md](references/language-adjustments.md). (CC-1)

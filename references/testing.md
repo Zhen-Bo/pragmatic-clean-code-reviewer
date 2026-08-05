@@ -2,7 +2,7 @@
 
 **Purpose:** Whether behavior is protected by tests that are clear, independent, and maintainable.
 
-Report missing, weak, or misleading tests as Confirmed Violations when code evidence shows unprotected behavior or a testing burden. Hard-to-test production code is often a design problem as well as a testing one.
+Report missing, weak, or misleading tests as Confirmed Violations when code evidence shows unprotected behavior or a testing burden. Report testing findings only at L3 and above. Hard-to-test production code is often a design problem as well as a testing one.
 
 ## What to inspect
 

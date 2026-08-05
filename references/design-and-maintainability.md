@@ -4,7 +4,7 @@
 
 Packs organize attention and never limit reportable problems. Report any concrete design or maintainability problem with code evidence and consequence, whether or not a named rule covers it.
 
-Quality Level (L1–L5) decides whether a maintainability concern becomes a Confirmed Violation. It never changes Finding Severity. Threshold breaches start closer inspection; they are not findings by themselves.
+Quality Level (L1–L5) decides whether a maintainability concern becomes a Confirmed Violation. It never changes Finding Severity. A measured metric strictly greater than the trigger at the applied level is a Confirmed Violation; equal to the trigger is not a breach.
 
 ## Contents
 
@@ -48,7 +48,7 @@ Before abstracting, all of these should hold:
 3. The abstraction has a clear name (not Utils, Helper, Common).
 4. The abstraction reduces overall complexity.
 
-Rule of Three is a design heuristic: the third clear occurrence often reveals the real pattern. Quality Level thresholds calibrate how hard you look for confirmed same-knowledge occurrences; they do not auto-create findings.
+Rule of Three is a design heuristic: the third clear occurrence often reveals the real pattern. A confirmed same-knowledge count strictly greater than the level's trigger is a Confirmed Violation; equal to the trigger is not a breach.
 
 Optional rule references: PP-15, CC-37, CC-128, CC-155, CA-25.
 

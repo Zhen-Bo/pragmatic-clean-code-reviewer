@@ -71,7 +71,7 @@ Quick reference for established software engineering principles. Rule IDs (CC-*,
 
 **Important:** DRY is about *knowledge*, not *code text*. Two pieces that look the same but encode different business rules should stay separate (accidental similarity). Two pieces that must always change together share knowledge and need one source (true duplication). See also CA-25.
 
-**Rule of Three (design heuristic):** the first copy teaches little; the second hints; the third often reveals what is shared and what varies. Quality Level thresholds calibrate how hard you look for confirmed same-knowledge occurrences; a count is never a finding by itself.
+**Rule of Three (design heuristic):** the first copy teaches little; the second hints; the third often reveals what is shared and what varies. A confirmed same-knowledge count strictly greater than the level's trigger is a Confirmed Violation; equal to the trigger is not a breach.
 
 **Before abstracting, prefer all of:**
 1. Single clear business concept (not Utils/Helper/Common).

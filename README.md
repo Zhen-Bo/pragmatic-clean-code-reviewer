@@ -108,16 +108,16 @@ Every in-scope path is read directly and fully. Paths ignored by `.gitignore` ar
 
 Pick L1–L5 directly in the request. If you pick nothing, **L3** applies and is stated before review. Only your stated level applies for the whole review.
 
-Lower levels relax only maintainability strictness. Correctness, security, authorization, data integrity, contracts, and repository policy stay full obligations at every level.
+A level relaxes only what the trigger table and the rule packs explicitly state for it — for example, testing findings are reported only at L3 and above. Correctness, security, authorization, data integrity, contracts, and repository policy stay full obligations at every level.
 
-Inspection triggers start closer inspection; they are not findings by themselves:
+Inspection triggers: a measured value strictly greater than the trigger at the applied level is a Confirmed Violation; equal to the trigger is not a breach:
 
 | Inspection trigger | L1 | L2 | L3 | L4 | L5 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Function effective logic lines | none | 80 | 50 | 30 | 20 |
 | Required parameters | none | 7 | 5 | 4 | 3 |
 | Maximum nesting depth | none | 5 | 4 | 3 | 2 |
-| Confirmed occurrences of the same duplicated knowledge | none | 5 | 3 | 2 | 2 |
+| Confirmed occurrences of the same duplicated knowledge | none | 3 | 2 | 1 | 1 |
 | Source-file lines | none | 800 | 500 | 300 | 200 |
 
 `none` means no numeric trigger; concrete structural problems remain reportable at every level.
@@ -125,10 +125,10 @@ Inspection triggers start closer inspection; they are not findings by themselves
 <details>
 <summary><strong>Counting rules (summary)</strong></summary>
 
-- **Logic lines** — every nonblank, non-comment line
+- **Logic lines** — one per statement or clause header; docstrings don't count
 - **Required parameters** — caller-mandatory only
 - **Nesting** — function body starts at depth 0; each control level adds 1
-- **Duplicated knowledge** — reviewer-judged same knowledge (semantic)
+- **Duplicated knowledge** — reviewer-judged same knowledge; count strictly above the level trigger is a finding
 - **File lines** — physical lines
 
 Full rules live in [SKILL.md](SKILL.md).
@@ -147,7 +147,7 @@ All eight load once at review start and stay available for the whole review. Eve
 4. **Contracts and Compatibility**
 5. **Reliability and Operations**
 6. **Dependencies and Build**
-7. **Documentation and Generated Artifacts**
+7. **Documentation**
 8. **Research Reproducibility**
 
 Detailed guidance lives under `references/`. Rule IDs are optional pointers into that guidance.

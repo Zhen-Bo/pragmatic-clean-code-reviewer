@@ -26,7 +26,6 @@ Optional rule references: CA-12, CA-18–20, CA-31, CA-45, CA-47.
 - Build or test requires many manual steps when a single entry command is expected.
 - CI missing for a repository that claims continuous integration, or CI not running the tests that matter.
 - Release process undocumented or only tribal knowledge.
-- Generated artifacts rebuilt inconsistently; checked-in generate output out of sync with sources (cross-check Documentation pack).
 - Version control not driving builds and releases when the project standard says it should.
 
 Optional rule references: CC-145–146, PP-28, PP-88–90, PP-94.

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0 - 2026-08-05
+
+### Changed
+
+- **Logic lines counting rule**: each simple statement and each control-flow clause header counts once (regardless of physical line span); docstrings are documentation, not logic. Replaces the prior "every nonblank, non-comment line" rule.
+- **Inspection-trigger breaches are findings**: measured value strictly greater than the trigger at the applied Quality Level is a Confirmed Violation (equal is not a breach); evidence is the measurement; bare breach severity defaults to Important. Replaces "starts closer inspection and is not a finding by itself".
+- **Duplication trigger row**: Confirmed occurrences of the same duplicated knowledge is now L1 none / L2 3 / L3 2 / L4 1 / L5 1 (was none / 5 / 3 / 2 / 2); L4 and L5 zero-tolerate a second confirmed copy.
+- **At-or-below trigger is not a finding**: on a metric axis with a numeric trigger, a measured value at or below the trigger is not a finding (clarifies the triggers footnote).
+- **Level relaxation is explicit**: "Lower levels relax only maintainability strictness" is replaced by "A level relaxes only what the trigger table and the rule packs explicitly state for it"; the testing pack now states "Report testing findings only at L3 and above", so L1/L2 reviews no longer report missing, weak, or misleading tests.
+- **Generated-file special handling removed**: the documentation pack no longer defines any generated-artifact rules; every in-scope file is reviewed as ordinary code, whatever its header or origin claims. Users who do not want generated files reviewed exclude them from Review Scope. The pack is renamed from Documentation and Generated Artifacts to Documentation (`references/documentation.md`).
+
 ## 2.0.0 - 2026-08-04
 
 ### Added

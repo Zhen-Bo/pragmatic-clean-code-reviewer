@@ -7,7 +7,7 @@ description: >
   Do not use for implementing fixes, writing new code, or lint/format-only passes.
 license: MIT
 metadata:
-  version: 2.1.0
+  version: 2.2.0
 ---
 
 # Pragmatic Code Review
@@ -17,7 +17,7 @@ metadata:
 Complete Review means all known required review work is accounted for in one Auditable Review Trace, and Final Recheck found no unfinished work.
 Emit the final report only after Complete Review.
 
-The final report claims only what the Auditable Review Trace evidences: confirmed findings, completed work, and remaining uncertainty.
+The final report claims only what the Auditable Review Trace evidences: confirmed findings.
 
 Resolve missing information from repository evidence first; remaining uncertainty becomes a reported finding, and the review continues until Complete Review or a user stop.
 
@@ -33,6 +33,7 @@ Show the scope basis and file count at review start.
 - Nonexistent target → empty Review Scope; complete the review by reporting that fact.
 - Read every in-scope path directly and fully, judging rule applicability yourself while reading.
 - Never read paths ignored by `.gitignore` — they may hold secrets.
+- Never execute the code under review, including its tests and any snippet written against it; every finding rests on reading the source. Listing files and reading history are not execution.
 
 ## Quality Level
 
@@ -97,7 +98,7 @@ The main agent enumerates the complete scope, assigns file groups, integrates re
 
 ## Auditable Review Trace
 
-One trace, living in the conversation only. It accounts for:
+One trace. It accounts for:
 
 - every in-scope file and its actual complete read
 - every computed metric value
@@ -138,6 +139,10 @@ An inspection-trigger breach with only the measurement as evidence is **Importan
 Quality Level decides whether a maintainability concern becomes a Confirmed Violation, including by whether a measured metric is strictly greater than its trigger.
 
 ### Report format
+
+Emit the report in the response and write it to `docs/reviews/<timestamp>-report.md` in the reviewed project; write the trace beside it as `docs/reviews/<timestamp>-trace.md`. The timestamp is `YYYYMMDD-HHMMSSZ`.
+
+The report carries findings only. A measurement at or below its trigger belongs in the trace. Scope basis, Quality Level, output paths, and a failed write are operational lines, not findings, and stay in the report.
 
 One heading per severity class with at least one finding, ordered Critical → Important → Minor; order findings under each heading by code location:
 

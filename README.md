@@ -166,7 +166,9 @@ Guidance draws on *The Pragmatic Programmer*, *Clean Code*, *Clean Architecture*
 6. **Final Recheck** — reconcile scope against the trace; a gap continues the review.
 7. Report findings only after Complete Review (or a labeled partial review if you stop early).
 
-The Auditable Review Trace lives in the conversation only. The trace records only work actually performed — the goal is complete work, never a complete-looking trace.
+The trace records only work actually performed — the goal is complete work, never a complete-looking trace.
+
+The review is static: findings rest on reading the source, so a review never runs your project, its tests, or snippets written against them.
 
 For large scopes, workers scale to scope: the main agent alone for small file sets, one subagent for a medium batch, parallel subagents only for independent file groups. Each subagent loads this skill and uses the same Quality Level. The main agent owns the single trace.
 
@@ -183,6 +185,10 @@ A **Confirmed Violation** needs concrete code evidence and a credible consequenc
 | **Critical** | Authorization bypass, sensitive-data disclosure, authoritative-data loss or corruption, unavailable core service, physical harm, substantial financial loss |
 | **Important** | Incorrect external behavior, reduced reliability, required workaround, serious performance degradation, concrete maintainability or testing burden |
 | **Minor** | Limited local inconvenience or a small maintainability or testing burden |
+
+The report is emitted in the response and also written to `docs/reviews/<timestamp>-report.md` in the reviewed project; the trace is written beside it as `docs/reviews/<timestamp>-trace.md`. The `YYYYMMDD-HHMMSSZ` timestamp makes repeated reviews accumulate instead of overwriting each other.
+
+The report carries findings only; a measurement at or below its trigger belongs in the trace. Scope basis, Quality Level, and output paths are operational lines, not findings, and stay in the report.
 
 Report format — one heading per severity class, ordered Critical → Important → Minor, then by code location:
 

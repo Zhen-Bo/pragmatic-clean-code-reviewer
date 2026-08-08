@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.0 - 2026-08-08
+
+### Added
+
+- **Review artifacts on disk**: the report is emitted in the response and also written to `docs/reviews/<timestamp>-report.md` in the reviewed project, and the Auditable Review Trace is written beside it as `docs/reviews/<timestamp>-trace.md`. The `YYYYMMDD-HHMMSSZ` timestamp makes repeated reviews accumulate instead of overwriting each other.
+- **Review is static**: executing the code under review is now forbidden: no running the project, its tests, or snippets written against it. Listing files and reading history are not execution. The skill was previously silent, so whether a review rested on reading or on running the code varied by model.
+
+### Changed
+
+- **The report carries findings only**: a measurement at or below its trigger is recorded in the trace, never in the report. Operational lines — scope basis, Quality Level, output paths, a failed write — are not findings and stay in the report. Previously the report was also asked to claim completed work, which pulled non-findings into it.
+- **Remaining uncertainty is an ordinary finding**: the Product Promise no longer lists it beside confirmed findings, so the existing evidence and severity rules apply to it unchanged. It was already defined as a reported finding, and listing it separately contradicted that.
+- **The trace is no longer conversation-only**: it now has a file of its own, so the record of what was read, measured, and checked survives the session.
+
 ## 2.1.0 - 2026-08-05
 
 ### Changed

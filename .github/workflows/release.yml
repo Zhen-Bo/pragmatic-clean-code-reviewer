@@ -53,19 +53,32 @@ jobs:
       - name: Create skill package
         run: |
           set -euo pipefail
-          SKILL_NAME="pragmatic-code-review"
+          SKILL_NAME="smell-check"
           VERSION="${GITHUB_REF_NAME}"
 
           # Create package directory
           mkdir -p dist
 
-          # Skill payload: SKILL.md, the license, and the whole references/ tree
-          # (eight Rule Packs plus the Rule Corpus). docs/ is repository
-          # documentation and is deliberately never shipped.
+          # Skill payload: contract, license, all reference registries, and
+          # bundled measure scripts. docs/ is repository-only and never ships.
+          # validate_skill.py stays in the repo for CI; it is not a runtime
+          # dependency of the skill and is omitted from the package.
           zip -r "dist/${SKILL_NAME}-${VERSION}.skill" \
             SKILL.md \
+            README.md \
             LICENSE \
-            references/ \
+            references/clean-architecture.md \
+            references/clean-code.md \
+            references/configuration.md \
+            references/language-adjustments.md \
+            references/measurement.md \
+            references/pragmatic-programmer.md \
+            references/presets.md \
+            references/principles-glossary.md \
+            references/rules-code.md \
+            references/rules-test.md \
+            scripts/measure_python.py \
+            scripts/measure_ts.mjs \
             -x "*.git*" \
             -x "*__pycache__*" \
             -x "*.DS_Store"
@@ -79,11 +92,28 @@ jobs:
       - name: Verify package contents
         run: |
           set -euo pipefail
-          PKG="dist/pragmatic-code-review-${GITHUB_REF_NAME}.skill"
+          PKG="dist/smell-check-${GITHUB_REF_NAME}.skill"
           MANIFEST=$(unzip -Z1 "$PKG")
           echo "$MANIFEST"
 
-          for required in SKILL.md LICENSE references/*.md; do
+          required=(
+            SKILL.md
+            README.md
+            LICENSE
+            references/clean-architecture.md
+            references/clean-code.md
+            references/configuration.md
+            references/language-adjustments.md
+            references/measurement.md
+            references/pragmatic-programmer.md
+            references/presets.md
+            references/principles-glossary.md
+            references/rules-code.md
+            references/rules-test.md
+            scripts/measure_python.py
+            scripts/measure_ts.mjs
+          )
+          for required in "${required[@]}"; do
             if ! printf '%s\n' "$MANIFEST" | grep -qxF "$required"; then
               echo "❌ Missing from package: $required"
               exit 1
@@ -94,6 +124,23 @@ jobs:
             echo "❌ docs/ must not be packaged"
             exit 1
           fi
+
+          # Deleted v2 packs must not reappear
+          for banned in \
+            references/design-and-maintainability.md \
+            references/testing.md \
+            references/security-and-privacy.md \
+            references/contracts-and-compatibility.md \
+            references/reliability-and-operations.md \
+            references/dependencies-and-build.md \
+            references/documentation.md \
+            references/research-reproducibility.md
+          do
+            if printf '%s\n' "$MANIFEST" | grep -qxF "$banned"; then
+              echo "❌ Banned v2 pack in package: $banned"
+              exit 1
+            fi
+          done
 
           echo "✅ Package contents verified"
 
@@ -131,21 +178,21 @@ jobs:
 
           ### Option 1: Clone directly
           \`\`\`bash
-          git clone https://github.com/${{ github.repository }}.git <skills-directory>/pragmatic-code-review
+          git clone https://github.com/${{ github.repository }}.git <skills-directory>/smell-check
           \`\`\`
 
           ### Option 2: Download and extract
           1. Download the \`.skill\` or \`.zip\` file from this release
-          2. Extract to \`<skills-directory>/pragmatic-code-review/\`
+          2. Extract to \`<skills-directory>/smell-check/\`
 
           ## Usage
 
           Invoke the skill with:
           \`\`\`
-          /pragmatic-code-review
+          /smell-check
           \`\`\`
 
-          Or use natural language: "Review my code for code smells"
+          Or use natural language: "Run a smell audit on src/"
           EOF
 
       - name: Create GitHub Release

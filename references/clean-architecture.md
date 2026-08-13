@@ -188,7 +188,7 @@ Inner layers know nothing about outer layers.
 | Topic | Rules |
 |-------|-------|
 | **SOLID** | CA-8, CA-9, CA-10, CA-11, CA-12 |
-| **Components** | CA-13~20 |
+| **Components** | CA-13 to CA-20 |
 | **Boundaries** | CA-26, CA-27, CA-33, CA-34 |
 | **Clean Architecture** | CA-31, CA-32, CA-35 |
 | **Independence** | CA-21, CA-22, CA-23, CA-24 |

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- **Report header**: the single-line report title is now YAML frontmatter (`repo`, `commit`, `date`, `scope`, `profile`, `active`, `dismissed`, plus `status: partial` when stopped early) followed by a short `# <repo> smell-check` title.
+- **Install via the `skills` CLI**: README documents `npx skills add Zhen-Bo/smell-check` as the install method (git clone instructions removed) and carries the skills.sh install badge.
+
+## 3.0.0 - 2026-08-13
+
+### Changed
+
+- **Repositioned as `smell-check`**: smell-first whole-repo (or scoped) audit skill — not a PR review bot. Subject code is treated as data and is never modified or executed.
+- **Findings diagnose, they do not prescribe**: every finding carries a location, a verbatim snippet (at most 10 lines), evidence with a rank (`mechanical` / `semantic` / `estimate`), and the maintainer cost. No refactoring prescriptions and no triage checkboxes — fix strategy belongs to whoever owns the fix.
+- **One findings list**: active findings sort by path in a single list; a closing Dismissed section keeps the same sort, continues the `F-n` id sequence, and records each hit's judgment basis and removal reason. Report prose is written in the user's conversation language.
+- **Five size profiles + auto**: `personal` / `small` / `medium` / `large` / `ultimate` with central, per-profile distinct thresholds (`ultimate` is the strictest book-aligned reading); omit `profile` in a git repo to auto-pick from the source-code line count of the scope — fixtures, lockfiles, generated output, and prose never inflate the profile (disclosed in the report). Config file: `.smell-check.toml` (choices only).
+- **Metric contracts follow the source books**: `code.long-function` counts non-blank, non-comment lines (docstrings excluded); `code.long-parameter-list` counts every declared value parameter (receiver and type parameters excluded); `test.conditional-test-logic` counts conditional and loop nodes only; `test.sleepy-test` flags every hard-wait call site with no numeric gate.
+- **Report-directory ignore choice**: the first report in a git repo asks once where to ignore `.smell-check/` (`.git/info/exclude` default, `.gitignore`, or nowhere); pin the choice with `report_ignore` in `.smell-check.toml`.
+- **Local-first measurement**: shell greps, bundled `scripts/measure_python.py` (stdlib) and `scripts/measure_ts.mjs` (borrows subject `typescript`), optional lizard/jscpd when already installed — never invent mechanical numbers, never nag to install.
+- **Report contract**: writes `.smell-check/reports/<UTC-timestamp>.md` with title line, summary table, synthesis (≤3 inferences citing finding ids only), the findings list, dismissed hits, and an environment appendix.
+- **`scripts/validate_skill.py`**: rewritten for the v3 contract (frontmatter, rule keys, five-value preset rows, legacy-name sweep, version binding, shipped-markdown hygiene: markdown links, tilde-free ID ranges, no plan tokens).
+
+### Added
+
+- **Rule registries**: `references/rules-code.md` and `references/rules-test.md` — 36 atomic rules total; experimental rules default off in every profile.
+- **Supporting references**: `presets.md`, `configuration.md`, `measurement.md` (plus retained book source maps).
+
+### Removed
+
+- **v2 review machinery**: eight review packs, Quality Levels L1–L5, Auditable Review Trace / Complete Review / Final Recheck / Product Promise flow, and PR-review framing.
+
 ## 2.2.0 - 2026-08-08
 
 ### Added

@@ -171,18 +171,11 @@ jobs:
           npx skills add ${{ github.repository }}
           \`\`\`
 
-          The CLI detects your runner (Claude Code, OpenCode, Codex, Cursor, and more) and installs into the current project; add \`-g\` for a user-level install.
+          Installs into the current project; add \`-g\` for a user-level install.
 
           ### Option 2: Download and extract
           1. Download the \`.skill\` or \`.zip\` file from this release
-          2. Extract to your harness skills directory:
-
-          | Harness | Skills directory |
-          |---------|------------------|
-          | **Claude Code** | \`~/.claude/skills/smell-check/\` |
-          | **Codex** | \`~/.codex/skills/smell-check/\` |
-          | **OpenCode** | \`~/.config/opencode/skills/smell-check/\` |
-          | **Other Agent Skills runner** | your harness's skills directory |
+          2. Extract it into your agent's skills directory as \`smell-check/\`
 
           ## Usage
 

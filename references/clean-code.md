@@ -340,11 +340,11 @@ Rule Corpus summary from *Clean Code* by Robert C. Martin. Rule IDs are optional
 
 | Topic | Rules |
 |-------|-------|
-| **Naming** | CC-4~19, CC-187~193 |
-| **Functions** | CC-20~38, CC-147~150, CC-180 |
-| **Comments** | CC-39~63, CC-140~144 |
-| **Classes** | CC-107~114 |
-| **Error Handling** | CC-86~93 |
-| **Testing** | CC-99~106, CC-194~202 |
-| **Concurrency** | CC-131~139 |
-| **Code Smells** | CC-151~186 |
+| **Naming** | CC-4 to CC-19, CC-187 to CC-193 |
+| **Functions** | CC-20 to CC-38, CC-147 to CC-150, CC-180 |
+| **Comments** | CC-39 to CC-63, CC-140 to CC-144 |
+| **Classes** | CC-107 to CC-114 |
+| **Error Handling** | CC-86 to CC-93 |
+| **Testing** | CC-99 to CC-106, CC-194 to CC-202 |
+| **Concurrency** | CC-131 to CC-139 |
+| **Code Smells** | CC-151 to CC-186 |

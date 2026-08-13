@@ -5,13 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Changed
-
-- **Report header**: the single-line report title is now YAML frontmatter (`repo`, `commit`, `date`, `scope`, `profile`, `active`, `dismissed`, plus `status: partial` when stopped early) followed by a short `# <repo> smell-check` title.
-- **Install via the `skills` CLI**: README documents `npx skills add Zhen-Bo/smell-check` as the install method (git clone instructions removed) and carries the skills.sh install badge.
-
 ## 3.0.0 - 2026-08-13
 
 ### Changed
@@ -23,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Metric contracts follow the source books**: `code.long-function` counts non-blank, non-comment lines (docstrings excluded); `code.long-parameter-list` counts every declared value parameter (receiver and type parameters excluded); `test.conditional-test-logic` counts conditional and loop nodes only; `test.sleepy-test` flags every hard-wait call site with no numeric gate.
 - **Report-directory ignore choice**: the first report in a git repo asks once where to ignore `.smell-check/` (`.git/info/exclude` default, `.gitignore`, or nowhere); pin the choice with `report_ignore` in `.smell-check.toml`.
 - **Local-first measurement**: shell greps, bundled `scripts/measure_python.py` (stdlib) and `scripts/measure_ts.mjs` (borrows subject `typescript`), optional lizard/jscpd when already installed — never invent mechanical numbers, never nag to install.
-- **Report contract**: writes `.smell-check/reports/<UTC-timestamp>.md` with title line, summary table, synthesis (≤3 inferences citing finding ids only), the findings list, dismissed hits, and an environment appendix.
+- **Report contract**: writes `.smell-check/reports/<UTC-timestamp>.md` with a YAML frontmatter header (`repo`, `commit`, `date`, `scope`, `profile`, `active`, `dismissed`, plus `status: partial` when stopped early), a short `# <repo> smell-check` title, summary table, synthesis (≤3 inferences citing finding ids only), the findings list, dismissed hits, and an environment appendix.
+- **Install via the `skills` CLI**: `npx skills add Zhen-Bo/smell-check` replaces git clone as the documented install method; the README carries the skills.sh install badge.
 - **`scripts/validate_skill.py`**: rewritten for the v3 contract (frontmatter, rule keys, five-value preset rows, legacy-name sweep, version binding, shipped-markdown hygiene: markdown links, tilde-free ID ranges, no plan tokens).
 
 ### Added

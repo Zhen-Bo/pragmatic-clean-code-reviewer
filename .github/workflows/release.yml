@@ -166,24 +166,23 @@ jobs:
 
           ## Installation
 
-          Works with any harness that supports the Agent Skills format. Install
-          into your harness skills directory:
-
-          | Harness | Skills directory |
-          |---------|------------------|
-          | **Claude Code** | \`~/.claude/skills/\` |
-          | **Codex** | \`~/.codex/skills/\` |
-          | **OpenCode** | \`~/.config/opencode/skills/\` |
-          | **Other Agent Skills runner** | your harness's skills directory |
-
-          ### Option 1: Clone directly
+          ### Option 1: skills CLI (recommended)
           \`\`\`bash
-          git clone https://github.com/${{ github.repository }}.git <skills-directory>/smell-check
+          npx skills add ${{ github.repository }}
           \`\`\`
+
+          The CLI detects your runner (Claude Code, OpenCode, Codex, Cursor, and more) and installs into the current project; add \`-g\` for a user-level install.
 
           ### Option 2: Download and extract
           1. Download the \`.skill\` or \`.zip\` file from this release
-          2. Extract to \`<skills-directory>/smell-check/\`
+          2. Extract to your harness skills directory:
+
+          | Harness | Skills directory |
+          |---------|------------------|
+          | **Claude Code** | \`~/.claude/skills/smell-check/\` |
+          | **Codex** | \`~/.codex/skills/smell-check/\` |
+          | **OpenCode** | \`~/.config/opencode/skills/smell-check/\` |
+          | **Other Agent Skills runner** | your harness's skills directory |
 
           ## Usage
 

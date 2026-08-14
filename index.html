@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#FBF3EA" />
+  <meta name="description" content="smell-check 是給 AI coding agent 用的 Agent Skill：掃描你指定的範圍，量測結構、判斷語意，每個發現都附證據。不改 code、不跑測試、不給合併建議。" />
+  <meta property="og:title" content="smell-check · 給 codebase 的健康檢查" />
+  <meta property="og:description" content="量得到的寫數字，靠判斷的標明是判斷。每個發現附證據等級，不修你的 code。" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='48' fill='%23fbf3ea'/%3E%3Cg fill='none' stroke='%23f4593b' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M34 116 q13 -10 26 0 q13 10 26 0 q10 -7 18 -2'/%3E%3Cpath d='M46 146 q12 -9 24 0 q12 9 22 1'/%3E%3C/g%3E%3Cpath d='M152 72 C150 110 122 128 116 148 C111 166 122 178 140 176 M140 176 q18 2 23 -13' fill='none' stroke='%23201c17' stroke-width='16' stroke-linecap='round'/%3E%3Ccircle cx='162' cy='168' r='7' fill='%23201c17'/%3E%3C/svg%3E" />
+  <title>smell-check · 給 codebase 的健康檢查</title>
+  <style>
+    :root {
+      --bg:         oklch(0.9679 0.0147 70.89);
+      --surface:    oklch(0.9851 0.0102 67.71);
+      --fg:         oklch(0.2292 0.0112 73.36);
+      --muted:      oklch(0.4482 0.0186 67.32);
+      --border:     oklch(0.9227 0.0188 75.32);
+      --accent:     oklch(0.6660 0.1958 32.96);
+      --accent-ink: oklch(0.5400 0.1800 32.96);
+      --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+      --fg-on-accent: oklch(0.1300 0.0080 73.36);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono:    ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      --fs-h1: clamp(34px, 4.4vw, 48px);
+      --fs-h2: clamp(24px, 2.9vw, 32px);
+      --fs-h3: 17px;
+      --fs-lead: 18px;
+      --fs-body: 16px;
+      --fs-meta: 13px;
+      --gap-xs: 8px;
+      --gap-sm: 12px;
+      --gap-md: 20px;
+      --gap-lg: 32px;
+      --gap-xl: 56px;
+      --gap-2xl: 96px;
+      --container: 1120px;
+      --gutter: 32px;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --duration-press: 140ms;
+      --duration-ui: 180ms;
+      --duration-enter: 420ms;
+      --shadow-report:
+        0 0 0 1px oklch(0 0 0 / 0.06),
+        0 1px 2px -1px oklch(0 0 0 / 0.06),
+        0 2px 4px 0 oklch(0 0 0 / 0.04),
+        0 12px 24px -10px oklch(0 0 0 / 0.08);
+      --shadow-report-hover:
+        0 0 0 1px oklch(0 0 0 / 0.08),
+        0 1px 2px -1px oklch(0 0 0 / 0.08),
+        0 2px 4px 0 oklch(0 0 0 / 0.06),
+        0 16px 32px -12px oklch(0 0 0 / 0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      color-scheme: light;
+      -webkit-text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      html { scroll-behavior: smooth; }
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p, blockquote, li { text-wrap: pretty; }
+    h1, h2 { text-wrap: balance; }
+    h3, h4 { text-wrap: pretty; }
+    h1, h2, h3, h4 {
+      word-break: keep-all;
+      line-break: strict;
+      overflow-wrap: break-word;
+    }
+    .hero-line { display: block; }
+    ::selection { background: var(--accent-soft); }
+    :focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+    [id] { scroll-margin-top: 88px; }
+    .skip {
+      position: absolute;
+      left: 16px;
+      top: 12px;
+      z-index: 30;
+      padding: 10px 14px;
+      background: var(--fg);
+      color: var(--bg);
+      border-radius: var(--radius);
+      transform: translateY(-160%);
+      transition-property: transform;
+      transition-duration: var(--duration-ui);
+      transition-timing-function: var(--ease-out);
+    }
+    .skip:focus { transform: none; }
+    .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+    .section { padding-block: clamp(48px, 7vw, 88px); }
+    .section + .section { border-top: 1px solid var(--border); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap-xl); }
+    @media (max-width: 920px) {
+      .grid-2 { grid-template-columns: 1fr; gap: var(--gap-lg); }
+    }
+    .h1, h1 { font-family: var(--font-display); font-size: var(--fs-h1); line-height: 1.36; letter-spacing: 0; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1.34; letter-spacing: 0; margin: 0; }
+    .h3, h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.35; letter-spacing: 0; margin: 0; }
+    .lead { font-size: var(--fs-lead); line-height: 1.62; color: var(--muted); max-width: 36em; margin: 0; word-break: keep-all; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 var(--gap-md);
+    }
+    .meta { font-family: var(--font-mono); font-size: var(--fs-meta); color: var(--muted); }
+    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      padding-top: env(safe-area-inset-top);
+      background: color-mix(in oklch, var(--bg) 78%, transparent);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      box-shadow: 0 1px 0 color-mix(in oklch, var(--fg) 8%, transparent);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 12px; gap: var(--gap-md); }
+    .topnav .logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.02em; display: inline-flex; align-items: center; gap: 11px; min-height: 44px; }
+    .topnav .logo svg { flex: 0 0 auto; }
+    .topnav .nav-right { display: flex; align-items: center; gap: 6px; }
+    .topnav nav { display: flex; gap: 6px; }
+    .github-star { display: inline-flex; align-items: center; gap: 6px; }
+    .ext-arrow { font-size: 0.8em; line-height: 0; margin-left: 2px; }
+    .topnav nav a, .github-star {
+      font-size: 14px;
+      color: var(--muted);
+      min-height: 44px;
+      padding-inline: 10px;
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      transition-property: color;
+      transition-duration: var(--duration-ui);
+      transition-timing-function: var(--ease-out);
+    }
+    .topnav nav a::after, .github-star::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 7px;
+      height: 1px;
+      background: var(--fg);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition-property: transform;
+      transition-duration: var(--duration-ui);
+      transition-timing-function: var(--ease-out);
+    }
+    .pagefoot { padding-block: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+    .pagefoot a { color: var(--muted); transition-property: color; transition-duration: var(--duration-ui); transition-timing-function: var(--ease-out); }
+    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); flex-wrap: wrap; font-size: 12.5px; }
+    .foot-bottom a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; margin-inline: -4px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 44px;
+      padding: 11px 20px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -0.005em;
+      transition-property: transform, background-color, border-color, color, box-shadow;
+      transition-duration: var(--duration-press);
+      transition-timing-function: var(--ease-out);
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--accent); color: var(--fg-on-accent); border-color: var(--accent); }
+    .btn-ghost { background: transparent; color: var(--fg); border-color: transparent; padding-inline: 10px; }
+    .btn-arrow { padding-right: 14px; }
+    .btn-arrow::after {
+      content: '→';
+      display: inline-block;
+      transition-property: transform;
+      transition-duration: var(--duration-ui);
+      transition-timing-function: var(--ease-out);
+    }
+    /* ─── hero ─────────────────────────────────────────────────────── */
+    .section-hero { padding-block: clamp(64px, 9vw, 112px) clamp(56px, 8vw, 96px); }
+    .hero-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: var(--gap-xl); align-items: center; }
+    .hero-copy > * {
+      animation: rise var(--duration-enter) var(--ease-out) both;
+    }
+    .hero-copy > *:nth-child(1) { animation-delay: 140ms; }
+    .hero-copy > *:nth-child(2) { animation-delay: 210ms; }
+    .hero-copy > *:nth-child(3) { animation-delay: 300ms; }
+    .hero-copy > *:nth-child(4) { animation-delay: 390ms; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    .hero-cta { display: flex; gap: var(--gap-sm); flex-wrap: wrap; align-items: center; margin-top: var(--gap-lg); }
+    .cmd {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: inline-block;
+      min-height: 44px;
+    }
+    .btn-copy { position: relative; min-width: 7.5rem; }
+    .btn-copy .copy-idle,
+    .btn-copy .copy-done {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition-property: opacity, transform;
+      transition-duration: 160ms;
+      transition-timing-function: var(--ease-out);
+    }
+    .btn-copy .copy-done {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(0.97);
+      pointer-events: none;
+      gap: 6px;
+    }
+    .btn-copy .check path {
+      stroke-dasharray: 17;
+      stroke-dashoffset: 17;
+      transition-property: stroke-dashoffset;
+      transition-duration: 200ms;
+      transition-timing-function: var(--ease-out);
+      transition-delay: 70ms;
+    }
+    .btn-copy.is-copied .check path { stroke-dashoffset: 0; }
+    .btn-copy.is-copied .copy-idle { opacity: 0; transform: scale(0.97); }
+    .btn-copy.is-copied .copy-done { opacity: 1; transform: none; }
+    /* ─── principle rows ───────────────────────────────────────────── */
+    .log-row {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr) 120px;
+      gap: var(--gap-lg);
+      padding: 22px 0;
+      border-top: 1px solid var(--border);
+      align-items: baseline;
+    }
+    .log-row:last-child { border-bottom: 1px solid var(--border); }
+    .log-row .tag-col { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .log-row h3 { font-size: 17px; }
+    .log-row p { margin: 5px 0 0; color: var(--muted); font-size: 14.5px; }
+    .log-row .pull { text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+    /* ─── report section ───────────────────────────────────────────── */
+    .anat {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 14px;
+      padding: 11px 0;
+      border-top: 1px solid var(--border);
+      align-items: baseline;
+    }
+    .anat:last-child { border-bottom: 1px solid var(--border); }
+    .anat .anat-num { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .anat p { margin: 0; font-size: 14.5px; }
+    .anat p strong { font-weight: 600; }
+    .report {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-report);
+      transition-property: box-shadow, transform;
+      transition-duration: var(--duration-ui);
+      transition-timing-function: var(--ease-out);
+    }
+    .report pre {
+      margin: 12px 0 0;
+      padding: 12px 14px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+    .rank { font-family: var(--font-mono); color: var(--accent-ink); }
+    /* ─── rules section ────────────────────────────────────────────── */
+    .tree { border-top: 1px solid var(--fg); }
+    .tree + .tree { margin-top: 44px; }
+    .tree-head { padding: 12px 0 0; }
+    .tree-head .meta { display: block; }
+    .tree-row {
+      display: grid;
+      grid-template-columns: 148px minmax(0, 1fr);
+      gap: var(--gap-lg);
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .tree-kicker {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--accent-ink); padding-top: 3px;
+      font-weight: 400; margin: 0;
+    }
+    .tree-kicker .cnt { color: var(--muted); margin-left: 8px; }
+    .tree-items { display: flex; flex-wrap: wrap; gap: 7px 18px; margin: 0; padding: 0; list-style: none; }
+    .tree-items li { font-size: 14.5px; line-height: 1.7; color: var(--fg); word-break: keep-all; }
+    .rv { transition-property: opacity, transform; transition-duration: 520ms; transition-timing-function: var(--ease-out); transition-delay: var(--d, 0ms); }
+    .tree .tree-row:nth-of-type(2) { --d: 70ms; }
+    .tree .tree-row:nth-of-type(3) { --d: 140ms; }
+    .tree .tree-row:nth-of-type(4) { --d: 210ms; }
+    .tree .tree-row:nth-of-type(5) { --d: 280ms; }
+    [data-od-id="stance"] .log-row:nth-of-type(2) { --d: 70ms; }
+    [data-od-id="stance"] .log-row:nth-of-type(3) { --d: 140ms; }
+    [data-od-id="stance"] .log-row:nth-of-type(4) { --d: 210ms; }
+    [data-od-id="report"] .anat:nth-of-type(2) { --d: 70ms; }
+    [data-od-id="report"] .anat:nth-of-type(3) { --d: 140ms; }
+    [data-od-id="report"] .anat:nth-of-type(4) { --d: 210ms; }
+    [data-od-id="report"] .anat:nth-of-type(5) { --d: 280ms; }
+    [data-od-id="report"] .anat:nth-of-type(6) { --d: 350ms; }
+    [data-od-id="compare"] tbody tr:nth-of-type(2) { --d: 70ms; }
+    [data-od-id="compare"] tbody tr:nth-of-type(3) { --d: 140ms; }
+    [data-od-id="compare"] tbody tr:nth-of-type(4) { --d: 210ms; }
+    .will-reveal .rv { opacity: 0; transform: translateY(10px); }
+    .is-revealed .rv { opacity: 1; transform: none; }
+    /* ─── quote ────────────────────────────────────────────────────── */
+    .quote {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 2.5vw, 28px);
+      line-height: 1.55;
+      letter-spacing: -0.005em;
+      margin: 0;
+      color: var(--fg);
+      word-break: keep-all;
+    }
+    .quote-mark {
+      font-family: var(--font-display);
+      font-size: clamp(120px, 13vw, 170px);
+      line-height: 0.62;
+      color: color-mix(in oklch, var(--accent) 34%, transparent);
+      width: fit-content;
+      margin: 0 0 6px -14px;
+    }
+    .reveal {
+      transition-property: opacity, transform;
+      transition-duration: 680ms;
+      transition-timing-function: var(--ease-out);
+    }
+    .quote-mark.reveal { transition-duration: 820ms; }
+    .will-reveal .reveal { opacity: 0; transform: translateY(16px); }
+    .will-reveal .quote-mark { transform: translateY(22px) scale(0.9); }
+    .is-revealed .reveal { opacity: 1; transform: none; }
+    .is-revealed .reveal-2 { transition-delay: 170ms; }
+    .is-revealed .reveal-3 { transition-delay: 330ms; }
+
+    /* ─── compare table ────────────────────────────────────────────── */
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ds-table th, .ds-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .ds-table th { color: var(--muted); font-weight: 500; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ds-table tbody tr { transition-property: background-color; transition-duration: 100ms; transition-timing-function: ease; }
+    .ds-table th:last-child, .ds-table td:last-child { border-left: 2px solid var(--accent); padding-left: 18px; }
+    .ds-table th:last-child { color: var(--accent-ink); }
+    /* ─── install ──────────────────────────────────────────────────── */
+    .install-inner { max-width: 620px; margin-inline: auto; text-align: center; }
+    .install-inner .lead { margin-inline: auto; }
+    .cmd-row { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: var(--gap-lg); }
+    /* ─── states ───────────────────────────────────────────────────── */
+    @media (hover: hover) and (pointer: fine) {
+      .topnav nav a:hover { color: var(--fg); }
+      .github-star:hover { color: var(--fg); }
+      .github-star:hover::after { transform: scaleX(1); }
+      .topnav nav a:hover::after { transform: scaleX(1); }
+      .btn-primary:hover { background: color-mix(in oklch, var(--accent) 78%, white); color: var(--fg-on-accent); }
+      .btn-ghost:hover { color: var(--fg); border-color: var(--border); }
+      .btn-arrow:hover::after { transform: translateX(2px); }
+      .ds-table tbody tr:hover { background: var(--fg-soft); }
+      .report:hover { box-shadow: var(--shadow-report-hover); transform: translateY(-2px); }
+      .pagefoot a:hover { color: var(--fg); text-decoration-color: var(--fg); }
+    }
+    @media (max-width: 640px) {
+      .hero-line { display: inline; }
+    }
+    @media (max-width: 920px) {
+      .topnav nav { display: none; }
+      .hero-split { grid-template-columns: 1fr; }
+      .log-row { grid-template-columns: 1fr; gap: 6px; }
+      .log-row .pull { text-align: left; }
+      .report { padding: 22px; }
+      .tree-row { grid-template-columns: 1fr; gap: 10px; }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .topnav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn,
+      .btn-arrow::after,
+      .btn-copy .copy-idle,
+      .btn-copy .copy-done,
+      .topnav nav a,
+      .ds-table tbody tr,
+      .report,
+      .reveal,
+      .rv,
+      .topnav nav a::after,
+      .btn-copy .check path {
+        transition: none;
+      }
+      .btn:active { transform: none; }
+      .report:hover { transform: none; }
+      .hero-copy > * { animation: fade-in 200ms ease both; }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">跳到主要內容</a>
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <a class="logo" href="#content" data-od-id="brand-logo">
+        <svg width="30" height="30" viewBox="0 0 256 256" aria-hidden="true">
+          <rect width="256" height="256" rx="48" fill="var(--bg)"></rect>
+          <g fill="none" stroke="var(--accent)" stroke-width="11" stroke-linecap="round">
+            <path d="M34 116 q13 -10 26 0 q13 10 26 0 q10 -7 18 -2"></path>
+            <path d="M46 146 q12 -9 24 0 q12 9 22 1"></path>
+          </g>
+          <path d="M152 72 C150 110 122 128 116 148 C111 166 122 178 140 176 M140 176 q18 2 23 -13" fill="none" stroke="var(--fg)" stroke-width="16" stroke-linecap="round"></path>
+          <circle cx="162" cy="168" r="7" fill="var(--fg)"></circle>
+        </svg>
+        <span translate="no">smell-check</span>
+      </a>
+      <div class="nav-right">
+        <nav>
+          <a href="#stance">原則</a>
+          <a href="#report">報告</a>
+          <a href="#rules">規則</a>
+          <a href="#compare">對照</a>
+        </nav>
+        <a class="github-star" href="https://github.com/Zhen-Bo/smell-check" target="_blank" rel="noopener" data-od-id="nav-github" aria-label="在 GitHub 開啟 smell-check(新分頁)">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 01-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A8.013 8.013 0 010 8c0-4.42 3.58-8 8-8z"/></svg>
+          <span translate="no">GitHub</span><span class="ext-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="section section-hero" data-od-id="hero">
+      <div class="container hero-split">
+        <div class="hero-copy">
+          <p class="eyebrow" translate="no">Code &amp; test smell audits</p>
+          <h1><span class="hero-line">給 codebase 的健康檢查，</span><span class="hero-line">每個發現都附證據。</span></h1>
+          <p class="lead" style="margin-top: 20px;">給 AI coding agent 用的 Agent Skill：掃你點名的路徑，量測結構、判斷語意，每個發現都附證據。</p>
+          <div class="hero-cta">
+            <code class="cmd num" translate="no">npx skills add Zhen-Bo/smell-check</code>
+            <button type="button" class="btn btn-primary btn-copy" data-od-id="hero-cta" data-copy="npx skills add Zhen-Bo/smell-check" aria-live="polite">
+              <span class="copy-idle">複製安裝指令</span>
+              <span class="copy-done"><svg class="check" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>已複製</span>
+            </button>
+            <a class="btn btn-ghost btn-arrow" href="#report">看報告解剖</a>
+          </div>
+        </div>
+        <article class="report" data-od-id="report-card" aria-label="虛構專案的報告節錄">
+          <p class="meta" style="margin: 0 0 10px;"><span translate="no">task-queue</span> · <span class="num" translate="no">3f9c2a1</span> · profile small · source=auto</p>
+          <p class="meta" style="margin: 0 0 18px;">範圍：整個 repo，48 個檔 · 原始碼 <span class="num">6,214</span> 行 · active <span class="num">7</span> · dismissed <span class="num">3</span></p>
+          <h3>F-3　Worker 的重試策略被寫了兩次</h3>
+          <p class="meta" style="margin: 8px 0 0;">位置 <span translate="no">queue/worker.py:88</span> 與 <span translate="no">queue/scheduler.py:41</span> · 規則 <span translate="no">code.duplicated-knowledge</span></p>
+          <pre translate="no">delay = min(BASE_DELAY * (2 ** attempt), 300)</pre>
+          <p style="margin: 16px 0 0; font-size: 15px;"><strong>證據 · <span class="rank" translate="no">semantic</span>。</strong>兩個模組手寫同一條退避規則；只有一份設了 jitter 上限，兩份副本已經開始漂移。</p>
+          <p style="margin: 10px 0 0; color: var(--muted); font-size: 15px;"><strong>後果。</strong>下次調整重試策略，很可能只改到其中一處。</p>
+          <p class="meta" style="margin: 18px 0 0;">虛構範例，出自官方 README。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="stance" id="stance">
+      <div class="container">
+        <div style="max-width: 38rem; margin-bottom: 36px;">
+          <p class="eyebrow">原則</p>
+          <h2>量得到的寫數字；靠判斷的，標明是判斷。</h2>
+        </div>
+        <div>
+          <article class="log-row rv" data-od-id="principle-measured">
+            <span class="tag-col" translate="no">Measured</span>
+            <div>
+              <h3>量得到的，就用腳本量</h3>
+              <p>結構指標由 wc、AST 計數器、jscpd 產生；量不到的標 estimate，不包裝成事實。</p>
+            </div>
+            <span class="pull">scripts first</span>
+          </article>
+          <article class="log-row rv" data-od-id="principle-evidence">
+            <span class="tag-col" translate="no">Evidence</span>
+            <div>
+              <h3>每個發現都標證據等級</h3>
+              <p>mechanical 是腳本數出來的；semantic 是 agent 判斷的，依據寫在旁邊；estimate 最弱，照實說。</p>
+            </div>
+            <span class="pull">3 ranks</span>
+          </article>
+          <article class="log-row rv" data-od-id="principle-diagnosis">
+            <span class="tag-col" translate="no">Diagnosis</span>
+            <div>
+              <h3>診斷到 finding 為止</h3>
+              <p>只寫哪裡壞、壞在哪、讓維護者多花什麼；怎麼修，留給負責修的人。</p>
+            </div>
+            <span class="pull">no prescription</span>
+          </article>
+          <article class="log-row rv" data-od-id="principle-static">
+            <span class="tag-col" translate="no">Static</span>
+            <div>
+              <h3>只讀，永遠不碰</h3>
+              <p>不改 code、不跑測試，也不讀 gitignore 遮住的路徑。</p>
+            </div>
+            <span class="pull">read-only</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="report" id="report">
+      <div class="container">
+        <div style="max-width: 44rem;">
+          <p class="eyebrow">報告解剖</p>
+          <h2>六個固定區塊，dismissed 的也留著。</h2>
+        </div>
+        <div style="margin-top: 36px; max-width: 56rem;">
+            <div class="anat rv"><span class="anat-num">01</span><p><strong>Header</strong>　repo、commit、範圍、profile 與挑選依據、active / dismissed 計數</p></div>
+            <div class="anat rv"><span class="anat-num">02</span><p><strong>Summary</strong>　規則 × active × dismissed × 證據等級的表</p></div>
+            <div class="anat rv"><span class="anat-num">03</span><p><strong>Synthesis</strong>　至多三個根因假設，只引用既有 finding，一律標 inference</p></div>
+            <div class="anat rv"><span class="anat-num">04</span><p><strong>Findings</strong>　依路徑排序：位置、逐字片段、證據、後果</p></div>
+            <div class="anat rv"><span class="anat-num">05</span><p><strong>Dismissed</strong>　被例外排除的命中，附排除理由，讓你稽核稽核者</p></div>
+            <div class="anat rv"><span class="anat-num">06</span><p><strong>Environment</strong>　用到哪些工具、跑過哪些指令、哪裡降級</p></div>
+          </div>
+          <p class="meta" style="margin-top: 20px;">報告寫進 <span translate="no">.smell-check/reports/</span>，用你對話的語言；lockfile 與生成物不算行數。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="rules" id="rules">
+      <div class="container">
+        <div style="max-width: 38rem; margin-bottom: 36px;">
+          <p class="eyebrow">規則</p>
+          <h2>20 條 code 規則、12 條 test 規則，每條都附例外。</h2>
+        </div>
+        <div class="tree" data-od-id="rules-code">
+          <div class="tree-head rv"><span class="meta" translate="no">Code · 20 stable</span></div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">規模與結構<span class="cnt num">5</span></h3>
+            <ul class="tree-items">
+              <li>長函式</li><li>過大檔案</li><li>深層巢狀</li><li>過長參數列</li><li translate="no">god class</li>
+            </ul>
+          </div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">重複<span class="cnt num">3</span></h3>
+            <ul class="tree-items">
+              <li>重複程式碼</li><li>重複知識</li><li>重複 <span translate="no">switch</span></li>
+            </ul>
+          </div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">表示與命名<span class="cnt num">7</span></h3>
+            <ul class="tree-items">
+              <li>誤導命名</li><li translate="no">primitive obsession</li><li translate="no">data clump</li><li translate="no">magic value</li><li>全域資料</li><li translate="no">speculative generality</li><li translate="no">dead code</li>
+            </ul>
+          </div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">耦合與變動<span class="cnt num">5</span></h3>
+            <ul class="tree-items">
+              <li translate="no">feature envy</li><li translate="no">shotgun surgery</li><li translate="no">divergent change</li><li translate="no">message chain</li><li translate="no">middle man</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tree" data-od-id="rules-test">
+          <div class="tree-head rv"><span class="meta" translate="no">Test · 12 stable</span></div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">斷言<span class="cnt num">3</span></h3>
+            <ul class="tree-items">
+              <li>無斷言的測試</li><li translate="no">assertion roulette</li><li translate="no">sensitive equality</li>
+            </ul>
+          </div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">結構<span class="cnt num">5</span></h3>
+            <ul class="tree-items">
+              <li translate="no">eager test</li><li>條件式測試邏輯</li><li translate="no">mystery guest</li><li>過大的 <span translate="no">fixture</span></li><li>看不懂的測試</li>
+            </ul>
+          </div>
+          <div class="tree-row rv">
+            <h3 class="tree-kicker">可靠度<span class="cnt num">4</span></h3>
+            <ul class="tree-items">
+              <li>被忽略的測試</li><li translate="no">sleepy test</li><li>順序相依的測試</li><li>非決定性</li>
+            </ul>
+          </div>
+        </div>
+        <p class="meta" style="margin-top: 28px; max-width: 44rem;">table-driven 測試、composition root 這類正當寫法會帶著理由排除，不變成噪音；4 條實驗規則預設關閉。</p>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="why" id="why">
+      <div class="container" id="quote-block">
+        <div class="quote-mark reveal" data-od-id="quote-mark" aria-hidden="true">“</div>
+        <blockquote class="quote reveal reveal-2">讀完《Refactoring》或《Clean Code》會改變你看程式碼的方式。<br>效果大概維持一週。</blockquote>
+        <p class="reveal reveal-3" style="margin: 26px 0 0; color: var(--accent-ink); font-size: 15px; letter-spacing: 0.01em;">—— 所以 smell-check 不教你品味。它只負責每次都聞一遍，要不要修，你決定。</p>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="compare" id="compare">
+      <div class="container">
+        <div style="max-width: 38rem; margin-bottom: 32px;">
+          <p class="eyebrow">對照</p>
+          <h2>放在工具箱的哪一格：互補，不是替代。</h2>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>工作</th>
+                <th translate="no">linter / 型別檢查</th>
+                <th translate="no">PR review bot</th>
+                <th translate="no">smell-check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="rv">
+                <td>每個 commit 能機械判定的規則</td>
+                <td>本職</td>
+                <td>有時會做</td>
+                <td>不取代</td>
+              </tr>
+              <tr class="rv">
+                <td>設計層的可維護性警訊</td>
+                <td>通常不讀</td>
+                <td>看 reviewer</td>
+                <td>本職</td>
+              </tr>
+              <tr class="rv">
+                <td>改 code、跑測試、給合併建議</td>
+                <td>否</td>
+                <td>常常會</td>
+                <td>從不</td>
+              </tr>
+              <tr class="rv">
+                <td>每個發現附證據等級</td>
+                <td>機械規則本身</td>
+                <td>常省略</td>
+                <td><span translate="no">mechanical · semantic · estimate</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="install" id="install">
+      <div class="container install-inner">
+        <h2>裝好，點名範圍，開始。</h2>
+        <p class="lead" style="margin-top: 16px;">對你的 agent 說「<span translate="no">Use the smell-check skill to audit this whole repository.</span>」大範圍掃描會先報 token 成本，等你點頭才開始。</p>
+        <div class="cmd-row">
+          <code class="cmd num" translate="no">npx skills add Zhen-Bo/smell-check</code>
+          <button type="button" class="btn btn-primary btn-copy" data-od-id="copy-install" data-copy="npx skills add Zhen-Bo/smell-check" aria-live="polite">
+            <span class="copy-idle">複製安裝指令</span>
+            <span class="copy-done"><svg class="check" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>已複製</span>
+          </button>
+        </div>
+        <p class="meta" style="margin-top: 24px;">只需要 git、wc、Python 3；裝 jscpd、lizard、node 量得更多，缺什麼就在報告裡標降級。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container">
+      <div class="foot-bottom">
+        <span>© <a href="https://github.com/Zhen-Bo" target="_blank" rel="noopener" translate="no">Zhen-Bo</a> · MIT</span>
+        <a href="#content">回到頂端 ↑</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.querySelectorAll("[data-copy]").forEach(function (btn) {
+      var timer = 0;
+      btn.addEventListener("click", function () {
+        var text = btn.getAttribute("data-copy") || "";
+        function done() {
+          btn.classList.add("is-copied");
+          window.clearTimeout(timer);
+          timer = window.setTimeout(function () {
+            btn.classList.remove("is-copied");
+          }, 1600);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () {
+            fallbackCopy();
+          });
+        } else {
+          fallbackCopy();
+        }
+        function fallbackCopy() {
+          var ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            if (document.execCommand("copy")) done();
+          } finally {
+            document.body.removeChild(ta);
+          }
+        }
+      });
+    });
+
+    (function () {
+      var block = document.getElementById("quote-block");
+      if (!block) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!("IntersectionObserver" in window)) return;
+      block.classList.add("will-reveal");
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            block.classList.add("is-revealed");
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.4 });
+      io.observe(block);
+    })();
+
+    (function () {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!("IntersectionObserver" in window)) return;
+      document.querySelectorAll('[data-od-id="stance"], [data-od-id="report"], [data-od-id="compare"], [data-od-id="rules"]').forEach(function (section) {
+        section.classList.add("will-reveal");
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              section.classList.add("is-revealed");
+              io.disconnect();
+            }
+          });
+        }, { threshold: 0.25 });
+        io.observe(section);
+      });
+    })();
+  </script>
+</body>
+</html>

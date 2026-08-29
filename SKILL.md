@@ -9,7 +9,7 @@ description: >
   advice, implementing fixes, writing new features, or lint/format-only passes.
 license: MIT
 metadata:
-  version: 3.0.0
+  version: 3.1.0
 ---
 
 # smell-check

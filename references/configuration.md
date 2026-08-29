@@ -14,7 +14,7 @@ Threshold meaning and enable-set defaults come from [presets.md](presets.md). Co
 | `rules` | table: rule key → bool | no | Per-rule on (`true`) / off (`false`). Only way to turn **experimental** rules on. |
 | `thresholds` | table: rule key → integer | no | Override the numeric gate for a rule that has a five-value row in [presets.md](presets.md). |
 | `exclude` | array of strings | no | Path globs skipped for measurement and judgment (matched against paths relative to the repo / scan root). |
-| `report_ignore` | string | no | Where the `.smell-check/` report directory gets ignored: `"git-info-exclude"`, `"gitignore"`, or `"none"`. When set, use it without asking; when absent, the report step asks once (skill body, report file section). |
+| `report_ignore` | string | no | Where the `.smell-check/` report directory gets ignored: `"git-info-exclude"`, `"gitignore"`, or `"none"`. When set, use it without asking; when absent, the report step asks once (skill body, report bundle section). |
 
 Unknown keys are ignored with a one-line note in the report environment block (do not fail the run). Rule keys that are not in a registry are ignored the same way.
 
@@ -119,5 +119,5 @@ Example: No config file (or file without `profile`). Auto runs, report shows e.g
 ## Out of scope here
 
 - How metrics are counted inside functions (registries + [measurement.md](measurement.md)).
-- Report file layout (skill body).
+- Report bundle layout ([report-bundle.md](report-bundle.md)).
 - Installing tools or changing subject code.

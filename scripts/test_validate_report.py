@@ -9,7 +9,11 @@ from pathlib import Path
 from validate_report import ReportError, validate_bundle
 
 
-def finding(number: int, location: str = "services/account.py:1") -> str:
+def finding(
+    number: int,
+    location: str = "services/account.py:1",
+    snippet: str = "def load_account(): ...",
+) -> str:
     return f"""## F-{number} — Long account function
 
 - `status`: `active`
@@ -24,7 +28,7 @@ The function has several responsibilities.
 ### Snippet
 
 ```python
-def load_account(): ...
+{snippet}
 ```
 
 ### Consequence
@@ -124,6 +128,39 @@ def main() -> None:
             bundle = make_bundle(root / str(count), count)
             result = validate_bundle(bundle)
             assert result["findings"] == count
+
+        for name, snippet in (
+            ("snippet-subsection", "### BEGIN INIT INFO"),
+            ("snippet-finding", "## F-2 — looks like a heading"),
+        ):
+            fenced = make_bundle(root / name, 1)
+            report = fenced / "findings" / "services-active-001.md"
+            report.write_text(
+                "# Active findings\n\n" + finding(1, snippet=snippet), encoding="utf-8"
+            )
+            assert validate_bundle(fenced)["findings"] == 1
+
+        fenced_synthesis = make_bundle(root / "fenced-synthesis", 3)
+        summary_path = fenced_synthesis / "summary.md"
+        block = "```text\n" + "\n".join(f"- item {n}" for n in range(1, 6)) + "\n```"
+        summary_path.write_text(
+            summary_path.read_text(encoding="utf-8").replace(
+                "No shared cause was inferred.", block
+            ),
+            encoding="utf-8",
+        )
+        assert validate_bundle(fenced_synthesis)["findings"] == 3
+
+        many_hypotheses = make_bundle(root / "many-hypotheses", 3)
+        summary_path = many_hypotheses / "summary.md"
+        summary_path.write_text(
+            summary_path.read_text(encoding="utf-8").replace(
+                "No shared cause was inferred.",
+                "\n".join(f"- cause {number} in F-1" for number in range(1, 5)),
+            ),
+            encoding="utf-8",
+        )
+        expect_error(many_hypotheses, "at most three hypotheses")
 
         too_many = make_bundle(root / "too-many", 100)
         report = too_many / "findings" / "services-active-001.md"

@@ -23,6 +23,7 @@ FINDING_HEADING_RE = re.compile(
     r"^## (F-[1-9][0-9]*)\s+(?:—|-|:)\s+(.+?)\s*$", re.MULTILINE
 )
 FIELD_RE = re.compile(r"^- `([a-z_]+)`: `([^`]+)`\s*$", re.MULTILINE)
+FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 VALID_STATUSES = {"active", "dismissed"}
 VALID_RANKS = {"mechanical", "semantic", "estimate"}
 STATUS_ORDER = {"active": 0, "dismissed": 1}
@@ -208,6 +209,27 @@ def validate_metadata(metadata: dict[str, Any]) -> None:
             raise ReportError("summary metadata profile_lines must be non-negative")
 
 
+def mask_fences(text: str) -> str:
+    """Blank the content of fenced code blocks so structure matching skips it.
+
+    Every character offset is preserved, so a match span on the masked text
+    slices the same region out of the original text.
+    """
+    lines = text.split("\n")
+    fence = ""
+    for index, line in enumerate(lines):
+        match = FENCE_RE.match(line)
+        run, info = match.groups() if match else ("", "")
+        if not fence:
+            if run and (run[0] == "~" or "`" not in info):
+                fence = run
+        elif run.startswith(fence) and not info.strip():
+            fence = ""
+        else:
+            lines[index] = " " * len(line)
+    return "\n".join(lines)
+
+
 def section(markdown: str, heading: str) -> str:
     match = re.search(
         rf"^## {re.escape(heading)}\s*$\n?(.*?)(?=^## |\Z)",
@@ -319,26 +341,32 @@ def finding_sort_key(record: dict[str, Any]) -> tuple[int, str, int, str, int]:
     )
 
 
-def subsection(body: str, heading: str, context: str) -> str:
+def subsection(body: str, masked: str, heading: str, context: str) -> str:
+    """Locate the subsection in the masked body, return it from the raw body."""
     match = re.search(
         rf"^### {re.escape(heading)}\s*$\n?(.*?)(?=^### |\Z)",
-        body,
+        masked,
         re.MULTILINE | re.DOTALL,
     )
-    if not match or not match.group(1).strip():
+    if not match:
         raise ReportError(f"{context} is missing section: {heading}")
-    return match.group(1).strip()
+    content = body[match.start(1) : match.end(1)].strip()
+    if not content:
+        raise ReportError(f"{context} is missing section: {heading}")
+    return content
 
 
 def parse_findings(page: str, expected_status: str, path: Path) -> list[dict[str, Any]]:
-    matches = list(FINDING_HEADING_RE.finditer(page))
+    masked_page = mask_fences(page)
+    matches = list(FINDING_HEADING_RE.finditer(masked_page))
     records: list[dict[str, Any]] = []
     for index, match in enumerate(matches):
         body_end = matches[index + 1].start() if index + 1 < len(matches) else len(page)
         body = page[match.end() : body_end]
+        masked_body = masked_page[match.end() : body_end]
         context = f"{path} finding {match.group(1)}"
-        metadata_end = body.find("\n### ")
-        metadata_text = body if metadata_end < 0 else body[:metadata_end]
+        metadata_end = masked_body.find("\n### ")
+        metadata_text = masked_body if metadata_end < 0 else masked_body[:metadata_end]
         pairs = FIELD_RE.findall(metadata_text)
         fields: dict[str, str] = {}
         locations: list[str] = []
@@ -372,9 +400,9 @@ def parse_findings(page: str, expected_status: str, path: Path) -> list[dict[str
             "rule": fields["rule"],
             "evidence_rank": fields["evidence_rank"],
             "locations": locations,
-            "evidence": subsection(body, "Evidence", context),
+            "evidence": subsection(body, masked_body, "Evidence", context),
         }
-        snippet_block = subsection(body, "Snippet", context)
+        snippet_block = subsection(body, masked_body, "Snippet", context)
         snippet_match = re.fullmatch(
             r"(```|~~~)[^\n]*\n(.*?)\n\1", snippet_block, re.DOTALL
         )
@@ -384,7 +412,7 @@ def parse_findings(page: str, expected_status: str, path: Path) -> list[dict[str
         if len(record["snippet"].splitlines()) > 10:
             raise ReportError(f"{context} snippet exceeds 10 lines")
         outcome = "Consequence" if expected_status == "active" else "Removal reason"
-        record["outcome"] = subsection(body, outcome, context)
+        record["outcome"] = subsection(body, masked_body, outcome, context)
         records.append(record)
     return records
 
@@ -451,6 +479,8 @@ def validate_bundle(bundle_dir: Path) -> dict[str, int]:
     summary = read_text(bundle_dir / "summary.md")
     metadata, summary_body = parse_front_matter(summary)
     validate_metadata(metadata)
+    # Headings and table rows live outside fenced blocks; ignore fenced content.
+    summary_body = mask_fences(summary_body)
     title = re.search(
         rf"^# {re.escape(metadata['repo'])} smell-check\s*$", summary_body, re.MULTILINE
     )

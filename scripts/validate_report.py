@@ -7,7 +7,6 @@ import argparse
 import ast
 import re
 import sys
-import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -16,7 +15,8 @@ MAX_FINDINGS_PER_SHARD = 100
 ID_RE = re.compile(r"^F-([1-9][0-9]*)$")
 RULE_RE = re.compile(r"^(?:code|test)\.[a-z0-9]+(?:-[a-z0-9]+)+$")
 MARKDOWN_PATH_RE = re.compile(
-    r"^findings/([a-z0-9]+(?:-[a-z0-9]+)*)-(active|dismissed)-([0-9]{3})\.md$"
+    r"^findings/((?:[a-z0-9]|[^\x00-\x7f])+(?:-(?:[a-z0-9]|[^\x00-\x7f])+)*)"
+    r"-(active|dismissed)-([0-9]{3})\.md$"
 )
 LOCATION_RE = re.compile(r"^(.+):([1-9][0-9]*)$")
 FINDING_HEADING_RE = re.compile(
@@ -441,12 +441,9 @@ def parse_inventory(summary_body: str) -> list[dict[str, Any]]:
             raise ReportError(
                 f"{context} report must be findings/<area>-<status>-<part>.md"
             )
-        area_slug = unicodedata.normalize("NFKD", row["area"])
-        area_slug = area_slug.encode("ascii", "ignore").decode("ascii").lower()
-        area_slug = re.sub(r"[^a-z0-9]+", "-", area_slug).strip("-") or "root"
-        if filename.group(1) != area_slug or filename.group(2) != row["status"]:
-            raise ReportError(f"{context} report name does not match its area and status")
-        group = (row["status"], row["area"])
+        if filename.group(2) != row["status"]:
+            raise ReportError(f"{context} report name does not match its status")
+        group = (row["status"], filename.group(1))
         expected_part = next_part.get(group, 1)
         if int(filename.group(3)) != expected_part:
             raise ReportError(f"{context} report part must be {expected_part:03d}")

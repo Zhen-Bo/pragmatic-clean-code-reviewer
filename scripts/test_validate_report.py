@@ -112,6 +112,28 @@ def make_bundle(root: Path, count: int) -> Path:
     return bundle
 
 
+def make_shards(root: Path, shards: list[tuple[str, str, list[tuple[int, str]]]]) -> Path:
+    """Write a bundle from explicit (area cell, shard path, findings) shards."""
+    root.mkdir(parents=True, exist_ok=True)
+    shard_rows: list[str] = []
+    links = ["summary.md"]
+    count = 0
+    for area, relative, entries in shards:
+        page = root / relative
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_text(
+            "# Active findings\n\n"
+            + "\n".join(finding(number, location) for number, location in entries),
+            encoding="utf-8",
+        )
+        shard_rows.append(f"| active | {area} | [{relative}]({relative}) | {len(entries)} |")
+        links.append(relative)
+        count += len(entries)
+    (root / "summary.md").write_text(summary(count, shard_rows), encoding="utf-8")
+    (root / "index.html").write_text(html(links), encoding="utf-8")
+    return root
+
+
 def expect_error(bundle: Path, text: str) -> None:
     try:
         validate_bundle(bundle)
@@ -128,6 +150,15 @@ def main() -> None:
             bundle = make_bundle(root / str(count), count)
             result = validate_bundle(bundle)
             assert result["findings"] == count
+
+        non_ascii_areas = make_shards(
+            root / "non-ascii-areas",
+            [
+                ("服務", "findings/服務-active-001.md", [(1, "服務/a.py:1")]),
+                ("測試", "findings/測試-active-001.md", [(2, "測試/b.py:1")]),
+            ],
+        )
+        assert validate_bundle(non_ascii_areas) == {"findings": 2, "shards": 2}
 
         for name, snippet in (
             ("snippet-subsection", "### BEGIN INIT INFO"),

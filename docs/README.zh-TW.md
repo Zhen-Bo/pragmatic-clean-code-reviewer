@@ -38,36 +38,16 @@
 
 ## 報告長什麼樣子
 
-報告寫到 `.smell-check/reports/<UTC-timestamp>.md`，使用你的對話語言。
-以下是稽核一個虛構 job-queue 專案的精簡節錄：
+報告寫到 `.smell-check/<UTC-timestamp>/`，使用你的對話語言。打開 `index.html` 看離線報告。
 
-> ```yaml
-> ---
-> repo: task-queue
-> commit: 3f9c2a1
-> date: 2026-08-13
-> scope: whole repo (48 files)
-> profile: small (source=auto; 6,214 source-code lines)
-> active: 7
-> dismissed: 3
-> ---
-> ```
->
-> # task-queue smell-check
->
-> ### F-3: Worker retry policy is duplicated (`code.duplicated-knowledge`)
->
-> - location: `queue/worker.py:88` and `queue/scheduler.py:41`
-> - snippet:
->
-> ```python
-> delay = min(BASE_DELAY * (2 ** attempt), 300)
-> ```
->
-> - evidence: **semantic**。兩個模組手寫了同一條退避規則；其中只有一份有加 jitter 上限，兩份副本已經開始漂移。
-> - consequence: 改重試策略需要兩處同步修改，下一次修改很可能漏掉一處。
+```text
+.smell-check/20260828-103000Z/
+├── index.html             # 摘要與原始碼區域索引
+├── summary.md             # 正規 manifest 與 Markdown 總覽
+└── findings/              # 每份最多 100 筆 finding 的 Markdown 報告
+```
 
-被 agent 排除的 finding 也會保留，每筆附上排除它的規則例外或判斷依據，讓你可以稽核這位稽核員。
+每筆 active finding 都會列出規則鍵、原始碼位置、逐字引用的片段、證據等級、證據與後果。被排除的 finding 會保留排除它的例外或判斷依據，讓你可以稽核這位稽核員。
 
 ## 為什麼要有 smell-check
 
@@ -103,7 +83,7 @@ skill 只靠 `git`＋`wc`＋Python 3 就能運作。
 
 ## 跑第一次稽核
 
-skill 會先要求你明確指定範圍，接著揭露它選了哪個 size profile 與原因，跑完機械與語意兩輪，寫出報告檔。
+skill 會先要求你明確指定範圍，接著揭露它選了哪個 size profile 與原因，跑完機械與語意兩輪，寫出報告 bundle。
 
 對你的 agent 說：
 
@@ -181,12 +161,10 @@ config 明寫 `profile` 永遠優先；否則 **auto** 依範圍內的原始碼�
 
 ## 報告結構
 
-1. **Header**：YAML frontmatter（欄位如上方節錄），後接一行簡短標題
-2. **摘要表**：規則 × active / dismissed 數 × 證據等級
-3. **綜合分析**：最多三條根因假設，只能引用既有 finding，且標明為推論
-4. **Findings**：所有 active finding 單一列表依路徑排序，每筆有位置、逐字引用的片段（≤ 10 行）、帶等級的證據、後果
-5. **Dismissed**：被排除的項目，同樣排序，各附判斷依據與排除原因
-6. **Environment**：找到的工具、執行過的指令、降級情況
+1. **Index**：repository 狀態、profile、彙總數字、規則摘要、綜合分析、原始碼區域與環境資訊
+2. **Finding 報告**：active 與 dismissed 的 finding 依狀態與原始碼區域拆成多個 Markdown 檔，每檔最多 100 筆
+3. **正規 Markdown**：[summary.md](../references/report-bundle.md#summary-manifest) 存放執行 manifest 與 shard 清單；模型依 [DESIGN.md](../DESIGN.md) 產生一份全新的 HTML 總覽
+4. **Markdown 輸出**：摘要與每份詳細 finding 報告，沒有 HTML renderer 也讀得懂
 
 ## 設定
 
@@ -212,11 +190,13 @@ exclude = ["vendor/**", "dist/**"]
 ```text
 smell-check/
 ├── SKILL.md              # 稽核程序
-├── references/           # 規則登錄、presets、量測、設定
+├── references/           # 規則登錄、presets、量測、設定、報告契約
 ├── scripts/
 │   ├── measure_python.py # Python AST 指標
-│   └── measure_ts.mjs    # TS/JS 指標
-└── assets/
+│   ├── measure_ts.mjs    # TS/JS 指標
+│   └── validate_report.py # 驗證報告 bundle
+├── assets/
+└── DESIGN.md             # AI 產生 HTML index 的設計契約
 ```
 
 ## FAQ
@@ -224,7 +204,7 @@ smell-check/
 **它會改我的程式碼嗎？**
 不會。
 純靜態分析；你的程式與測試永遠不會被執行。
-它會寫報告檔；第一次執行時，在碰其他東西之前，會先問要把 `.smell-check/` ignore 到哪裡（預設：`.git/info/exclude`）。
+它會寫報告 bundle；第一次執行時，在碰其他東西之前，會先問要把 `.smell-check/` ignore 到哪裡（預設：`.git/info/exclude`）。
 
 **它能取代 linter 或 type checker 嗎？**
 不能。

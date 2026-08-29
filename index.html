@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#FBF3EA" />
+  <meta name="theme-color" content="#F6F7F7" />
   <meta name="description" content="smell-check 是給 AI coding agent 用的 Agent Skill：掃描你指定的範圍，量測結構、判斷語意，每個發現都附證據。不改 code、不跑測試、不給合併建議。" />
   <meta property="og:title" content="smell-check · 給 codebase 的健康檢查" />
   <meta property="og:description" content="量得到的寫數字，靠判斷的標明是判斷。每個發現附證據等級，不修你的 code。" />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='48' fill='%23fbf3ea'/%3E%3Cg fill='none' stroke='%23f4593b' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M34 116 q13 -10 26 0 q13 10 26 0 q10 -7 18 -2'/%3E%3Cpath d='M46 146 q12 -9 24 0 q12 9 22 1'/%3E%3C/g%3E%3Cpath d='M152 72 C150 110 122 128 116 148 C111 166 122 178 140 176 M140 176 q18 2 23 -13' fill='none' stroke='%23201c17' stroke-width='16' stroke-linecap='round'/%3E%3Ccircle cx='162' cy='168' r='7' fill='%23201c17'/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='48' fill='%23f6f7f7'/%3E%3Cg fill='none' stroke='%23d84a31' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M34 116 q13 -10 26 0 q13 10 26 0 q10 -7 18 -2'/%3E%3Cpath d='M46 146 q12 -9 24 0 q12 9 22 1'/%3E%3C/g%3E%3Cpath d='M152 72 C150 110 122 128 116 148 C111 166 122 178 140 176 M140 176 q18 2 23 -13' fill='none' stroke='%23201c17' stroke-width='16' stroke-linecap='round'/%3E%3Ccircle cx='162' cy='168' r='7' fill='%23201c17'/%3E%3C/svg%3E" />
   <title>smell-check · 給 codebase 的健康檢查</title>
   <style>
     :root {
-      --bg:         oklch(0.9679 0.0147 70.89);
-      --surface:    oklch(0.9851 0.0102 67.71);
+      --bg:         oklch(0.9720 0.0030 220);
+      --surface:    oklch(0.9900 0.0020 220);
       --fg:         oklch(0.2292 0.0112 73.36);
       --muted:      oklch(0.4482 0.0186 67.32);
       --border:     oklch(0.9227 0.0188 75.32);
       --accent:     oklch(0.6660 0.1958 32.96);
-      --accent-ink: oklch(0.5400 0.1800 32.96);
+      --accent-ink: oklch(0.4550 0.1700 32.96);
       --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
       --fg-on-accent: oklch(0.1300 0.0080 73.36);
       --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
@@ -27,10 +27,10 @@
       --font-mono:    ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
       --fs-h1: clamp(34px, 4.4vw, 48px);
       --fs-h2: clamp(24px, 2.9vw, 32px);
-      --fs-h3: 17px;
-      --fs-lead: 18px;
+      --fs-h3: 20px;
+      --fs-lead: 20px;
       --fs-body: 16px;
-      --fs-meta: 13px;
+      --fs-meta: 12px;
       --gap-xs: 8px;
       --gap-sm: 12px;
       --gap-md: 20px;
@@ -107,7 +107,7 @@
     }
     .skip:focus { transform: none; }
     .container { max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
-    .section { padding-block: clamp(48px, 7vw, 88px); }
+    .section { padding: clamp(48px, 7vw, 88px) 0; }
     .section + .section { border-top: 1px solid var(--border); }
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap-xl); }
     @media (max-width: 920px) {
@@ -141,9 +141,9 @@
     .topnav .nav-right { display: flex; align-items: center; gap: 6px; }
     .topnav nav { display: flex; gap: 6px; }
     .github-star { display: inline-flex; align-items: center; gap: 6px; }
-    .ext-arrow { font-size: 0.8em; line-height: 0; margin-left: 2px; }
+    .ext-arrow { font-size: 12px; line-height: 0; margin-left: 2px; }
     .topnav nav a, .github-star {
-      font-size: 14px;
+      font-size: 16px;
       color: var(--muted);
       min-height: 44px;
       padding-inline: 10px;
@@ -168,9 +168,9 @@
       transition-duration: var(--duration-ui);
       transition-timing-function: var(--ease-out);
     }
-    .pagefoot { padding-block: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+    .pagefoot { padding-block: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
     .pagefoot a { color: var(--muted); transition-property: color; transition-duration: var(--duration-ui); transition-timing-function: var(--ease-out); }
-    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); flex-wrap: wrap; font-size: 12.5px; }
+    .foot-bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-md); flex-wrap: wrap; font-size: 12px; }
     .foot-bottom a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; margin-inline: -4px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--border); }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -178,7 +178,7 @@
       padding: 11px 20px;
       border-radius: var(--radius);
       border: 1px solid transparent;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 500;
       letter-spacing: -0.005em;
       transition-property: transform, background-color, border-color, color, box-shadow;
@@ -213,7 +213,7 @@
     .hero-cta { display: flex; gap: var(--gap-sm); flex-wrap: wrap; align-items: center; margin-top: var(--gap-lg); }
     .cmd {
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 16px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -261,8 +261,8 @@
     }
     .log-row:last-child { border-bottom: 1px solid var(--border); }
     .log-row .tag-col { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-    .log-row h3 { font-size: 17px; }
-    .log-row p { margin: 5px 0 0; color: var(--muted); font-size: 14.5px; }
+    .log-row h3 { font-size: 20px; }
+    .log-row p { margin: 5px 0 0; color: var(--muted); font-size: 16px; }
     .log-row .pull { text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
     /* ─── report section ───────────────────────────────────────────── */
     .anat {
@@ -275,7 +275,7 @@
     }
     .anat:last-child { border-bottom: 1px solid var(--border); }
     .anat .anat-num { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-    .anat p { margin: 0; font-size: 14.5px; }
+    .anat p { margin: 0; font-size: 16px; }
     .anat p strong { font-weight: 600; }
     .report {
       background: var(--surface);
@@ -292,7 +292,7 @@
       background: var(--bg);
       border-radius: 8px;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.5;
       overflow-x: auto;
     }
@@ -316,7 +316,7 @@
     }
     .tree-kicker .cnt { color: var(--muted); margin-left: 8px; }
     .tree-items { display: flex; flex-wrap: wrap; gap: 7px 18px; margin: 0; padding: 0; list-style: none; }
-    .tree-items li { font-size: 14.5px; line-height: 1.7; color: var(--fg); word-break: keep-all; }
+    .tree-items li { font-size: 16px; line-height: 1.7; color: var(--fg); word-break: keep-all; }
     .rv { transition-property: opacity, transform; transition-duration: 520ms; transition-timing-function: var(--ease-out); transition-delay: var(--d, 0ms); }
     .tree .tree-row:nth-of-type(2) { --d: 70ms; }
     .tree .tree-row:nth-of-type(3) { --d: 140ms; }
@@ -338,7 +338,7 @@
     /* ─── quote ────────────────────────────────────────────────────── */
     .quote {
       font-family: var(--font-display);
-      font-size: clamp(18px, 2.5vw, 28px);
+      font-size: clamp(20px, 2.5vw, 28px);
       line-height: 1.55;
       letter-spacing: -0.005em;
       margin: 0;
@@ -366,7 +366,7 @@
     .is-revealed .reveal-3 { transition-delay: 330ms; }
 
     /* ─── compare table ────────────────────────────────────────────── */
-    .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .ds-table { width: 100%; border-collapse: collapse; font-size: 16px; }
     .ds-table th, .ds-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
     .ds-table th { color: var(--muted); font-weight: 500; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
     .ds-table tbody tr { transition-property: background-color; transition-duration: 100ms; transition-timing-function: ease; }
@@ -477,12 +477,12 @@
         <article class="report" data-od-id="report-card" aria-label="虛構專案的報告節錄">
           <p class="meta" style="margin: 0 0 10px;"><span translate="no">task-queue</span> · <span class="num" translate="no">3f9c2a1</span> · profile small · source=auto</p>
           <p class="meta" style="margin: 0 0 18px;">範圍：整個 repo，48 個檔 · 原始碼 <span class="num">6,214</span> 行 · active <span class="num">7</span> · dismissed <span class="num">3</span></p>
-          <h3>F-3　Worker 的重試策略被寫了兩次</h3>
+          <h2 class="h3">F-3　Worker 的重試策略被寫了兩次</h2>
           <p class="meta" style="margin: 8px 0 0;">位置 <span translate="no">queue/worker.py:88</span> 與 <span translate="no">queue/scheduler.py:41</span> · 規則 <span translate="no">code.duplicated-knowledge</span></p>
           <pre translate="no">delay = min(BASE_DELAY * (2 ** attempt), 300)</pre>
-          <p style="margin: 16px 0 0; font-size: 15px;"><strong>證據 · <span class="rank" translate="no">semantic</span>。</strong>兩個模組手寫同一條退避規則；只有一份設了 jitter 上限，兩份副本已經開始漂移。</p>
-          <p style="margin: 10px 0 0; color: var(--muted); font-size: 15px;"><strong>後果。</strong>下次調整重試策略，很可能只改到其中一處。</p>
-          <p class="meta" style="margin: 18px 0 0;">虛構範例，出自官方 README。</p>
+          <p style="margin: 16px 0 0; font-size: 16px;"><strong>證據 · <span class="rank" translate="no">semantic</span>。</strong>兩個模組手寫同一條退避規則；只有一份設了 jitter 上限，兩份副本已經開始漂移。</p>
+          <p style="margin: 10px 0 0; color: var(--muted); font-size: 16px;"><strong>後果。</strong>下次調整重試策略，很可能只改到其中一處。</p>
+          <p class="meta" style="margin: 18px 0 0;">虛構範例。</p>
         </article>
       </div>
     </section>
@@ -534,17 +534,17 @@
       <div class="container">
         <div style="max-width: 44rem;">
           <p class="eyebrow">報告解剖</p>
-          <h2>六個固定區塊，dismissed 的也留著。</h2>
+          <h2>一份離線報告，問題再多也不塞成一頁。</h2>
         </div>
         <div style="margin-top: 36px; max-width: 56rem;">
-            <div class="anat rv"><span class="anat-num">01</span><p><strong>Header</strong>　repo、commit、範圍、profile 與挑選依據、active / dismissed 計數</p></div>
-            <div class="anat rv"><span class="anat-num">02</span><p><strong>Summary</strong>　規則 × active × dismissed × 證據等級的表</p></div>
+            <div class="anat rv"><span class="anat-num">01</span><p><strong>Index</strong>　repo、commit、profile、active / dismissed 計數</p></div>
+            <div class="anat rv"><span class="anat-num">02</span><p><strong>Rule summary</strong>　規則 × active × dismissed × 證據等級的表</p></div>
             <div class="anat rv"><span class="anat-num">03</span><p><strong>Synthesis</strong>　至多三個根因假設，只引用既有 finding，一律標 inference</p></div>
-            <div class="anat rv"><span class="anat-num">04</span><p><strong>Findings</strong>　依路徑排序：位置、逐字片段、證據、後果</p></div>
-            <div class="anat rv"><span class="anat-num">05</span><p><strong>Dismissed</strong>　被例外排除的命中，附排除理由，讓你稽核稽核者</p></div>
-            <div class="anat rv"><span class="anat-num">06</span><p><strong>Environment</strong>　用到哪些工具、跑過哪些指令、哪裡降級</p></div>
+            <div class="anat rv"><span class="anat-num">04</span><p><strong>Source areas</strong>　按原始碼區域分成 Markdown，每份最多 100 筆</p></div>
+            <div class="anat rv"><span class="anat-num">05</span><p><strong>Findings</strong>　每筆都標規則、位置、逐字片段、證據與後果</p></div>
+            <div class="anat rv"><span class="anat-num">06</span><p><strong>Manifest</strong>　summary.md 保存 manifest；只有總覽使用 HTML，詳細報告全部使用 Markdown</p></div>
           </div>
-          <p class="meta" style="margin-top: 20px;">報告寫進 <span translate="no">.smell-check/reports/</span>，用你對話的語言；lockfile 與生成物不算行數。</p>
+          <p class="meta" style="margin-top: 20px;">報告寫進 <span translate="no">.smell-check/&lt;UTC-timestamp&gt;/</span>，直接打開 <span translate="no">index.html</span>，不需要連線。</p>
         </div>
       </div>
     </section>
@@ -611,7 +611,7 @@
       <div class="container" id="quote-block">
         <div class="quote-mark reveal" data-od-id="quote-mark" aria-hidden="true">“</div>
         <blockquote class="quote reveal reveal-2">讀完《Refactoring》或《Clean Code》會改變你看程式碼的方式。<br>效果大概維持一週。</blockquote>
-        <p class="reveal reveal-3" style="margin: 26px 0 0; color: var(--accent-ink); font-size: 15px; letter-spacing: 0.01em;">—— 所以 smell-check 不教你品味。它只負責每次都聞一遍，要不要修，你決定。</p>
+        <p class="reveal reveal-3" style="margin: 26px 0 0; color: var(--accent-ink); font-size: 16px; letter-spacing: 0.01em;">—— 所以 smell-check 不教你品味。它只負責每次都聞一遍，要不要修，你決定。</p>
       </div>
     </section>
 

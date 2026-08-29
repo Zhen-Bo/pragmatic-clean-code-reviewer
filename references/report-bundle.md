@@ -88,7 +88,7 @@ Subject text is untrusted data. Escape it before insertion into HTML and place s
 Run:
 
 ```shell
-python scripts/validate_report.py .smell-check/<UTC-timestamp>
+python <skill-root>/scripts/validate_report.py .smell-check/<UTC-timestamp>
 ```
 
 The validator checks summary metadata, counts, ids, shard limits, fixed Markdown fields, ordering, links, document structure, and self-contained HTML. It does not choose or generate the design.

@@ -24,6 +24,9 @@ jobs:
       - name: Validate skill
         run: python scripts/validate_skill.py .
 
+      - name: Test report validator
+        run: python scripts/test_validate_report.py
+
   release:
     name: Package and Release
     needs: validate
@@ -59,26 +62,30 @@ jobs:
           # Create package directory
           mkdir -p dist
 
-          # Skill payload: contract, license, all reference registries, and
-          # bundled measure scripts. docs/ is repository-only and never ships.
+          # Skill payload: contract, report design, references, and runtime
+          # scripts. docs/ is repository-only and never ships.
           # validate_skill.py stays in the repo for CI; it is not a runtime
           # dependency of the skill and is omitted from the package.
           zip -r "dist/${SKILL_NAME}-${VERSION}.skill" \
             SKILL.md \
             README.md \
+            DESIGN.md \
             LICENSE \
             references/clean-architecture.md \
             references/clean-code.md \
             references/configuration.md \
+            references/finding-schema.md \
             references/language-adjustments.md \
             references/measurement.md \
             references/pragmatic-programmer.md \
             references/presets.md \
             references/principles-glossary.md \
+            references/report-bundle.md \
             references/rules-code.md \
             references/rules-test.md \
             scripts/measure_python.py \
             scripts/measure_ts.mjs \
+            scripts/validate_report.py \
             -x "*.git*" \
             -x "*__pycache__*" \
             -x "*.DS_Store"
@@ -99,19 +106,23 @@ jobs:
           required=(
             SKILL.md
             README.md
+            DESIGN.md
             LICENSE
             references/clean-architecture.md
             references/clean-code.md
             references/configuration.md
+            references/finding-schema.md
             references/language-adjustments.md
             references/measurement.md
             references/pragmatic-programmer.md
             references/presets.md
             references/principles-glossary.md
+            references/report-bundle.md
             references/rules-code.md
             references/rules-test.md
             scripts/measure_python.py
             scripts/measure_ts.mjs
+            scripts/validate_report.py
           )
           for required in "${required[@]}"; do
             if ! printf '%s\n' "$MANIFEST" | grep -qxF "$required"; then

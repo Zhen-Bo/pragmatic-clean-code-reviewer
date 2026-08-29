@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2026-08-29
+
+### Added
+
+- **Offline report bundle**: canonical Markdown feeds one AI-authored HTML overview. `summary.md` holds the run manifest and shard inventory; finding reports hold only finding records.
+- **Report validator**: checks metadata, finding fields, ordering, shard limits, links, counts, and the single self-contained HTML boundary.
+
+### Changed
+
+- **Finding schema**: normalized records now include `rule`, multiple locations, explicit status, and one status-specific outcome field.
+
+### Removed
+
+- **Single report file**: the former `.smell-check/reports/<UTC-timestamp>.md` path is replaced by `.smell-check/<UTC-timestamp>/`.
+
 ## 3.0.0 - 2026-08-13
 
 ### Changed

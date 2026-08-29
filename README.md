@@ -38,36 +38,16 @@ It is a health check for a codebase, **not a PR review bot**: no merge advice, n
 
 ## What a report looks like
 
-Reports land in `.smell-check/reports/<UTC-timestamp>.md`, written in your conversation language.
-A condensed excerpt from an audit of a fictional job-queue project:
+Reports land in `.smell-check/<UTC-timestamp>/`, written in your conversation language. Open `index.html` for the offline report.
 
-> ```yaml
-> ---
-> repo: task-queue
-> commit: 3f9c2a1
-> date: 2026-08-13
-> scope: whole repo (48 files)
-> profile: small (source=auto; 6,214 source-code lines)
-> active: 7
-> dismissed: 3
-> ---
-> ```
->
-> # task-queue smell-check
->
-> ### F-3: Worker retry policy is duplicated (`code.duplicated-knowledge`)
->
-> - location: `queue/worker.py:88` and `queue/scheduler.py:41`
-> - snippet:
->
-> ```python
-> delay = min(BASE_DELAY * (2 ** attempt), 300)
-> ```
->
-> - evidence: **semantic**. Both modules hand-roll the same backoff rule; only one of them also caps jitter, so the two copies have already drifted.
-> - consequence: Changing the retry policy requires two synchronized edits, and the next edit will likely miss one.
+```text
+.smell-check/20260828-103000Z/
+├── index.html             # summary and source-area index
+├── summary.md             # canonical manifest and Markdown overview
+└── findings/              # Markdown reports of at most 100 findings each
+```
 
-Findings the agent dismissed are kept too, each with the rule exception or judgment that removed it, so you can audit the auditor.
+Every active finding shows its rule key, source location, verbatim snippet, evidence rank, evidence, and consequence. Dismissed hits keep the exception or judgment that removed them, so you can audit the auditor.
 
 ## Why smell-check
 
@@ -104,7 +84,7 @@ Extra tools unlock extra measurements; when absent, the report says so instead o
 
 ## Run your first audit
 
-The skill asks you to name the scope before scanning, discloses which size profile it picked and why, runs the mechanical and semantic passes, and writes the report file.
+The skill asks you to name the scope before scanning, discloses which size profile it picked and why, runs the mechanical and semantic passes, and writes the report bundle.
 
 Ask your agent:
 
@@ -182,12 +162,10 @@ Every rule ships with its exceptions: table-driven test loops, composition roots
 
 ## Report anatomy
 
-1. **Header**: YAML frontmatter (fields as in the excerpt above), then a one-line title
-2. **Summary table**: rule × active / dismissed counts × evidence rank
-3. **Synthesis**: at most three root-cause hypotheses, each citing only existing findings and marked as inference
-4. **Findings**: every active finding in one list sorted by path, each with location, a verbatim snippet (≤ 10 lines), evidence with rank, and consequence
-5. **Dismissed**: removed hits in the same sort, each with its judgment basis and removal reason
-6. **Environment**: tools found, commands run, degradations
+1. **Index**: repository state, profile, aggregate counts, rule summary, synthesis, source areas, and environment
+2. **Finding reports**: active and dismissed findings split into Markdown files by status and source area, capped at 100 per file
+3. **Canonical Markdown**: [summary.md](references/report-bundle.md#summary-manifest) holds the run manifest and shard inventory; the model authors one fresh HTML overview from [DESIGN.md](DESIGN.md)
+4. **Markdown output**: the summary and every detailed finding report stay readable without an HTML renderer
 
 ## Configuration
 
@@ -213,11 +191,13 @@ exclude = ["vendor/**", "dist/**"]
 ```text
 smell-check/
 ├── SKILL.md              # the audit procedure
-├── references/           # rule registries, presets, measurement, configuration
+├── references/           # rule registries, presets, measurement, configuration, report contract
 ├── scripts/
 │   ├── measure_python.py # Python AST metrics
-│   └── measure_ts.mjs    # TS/JS metrics
-└── assets/
+│   ├── measure_ts.mjs    # TS/JS metrics
+│   └── validate_report.py # validates the report bundle
+├── assets/
+└── DESIGN.md             # design contract for the AI-authored HTML index
 ```
 
 ## FAQ
@@ -225,7 +205,7 @@ smell-check/
 **Does it change my code?**
 No.
 Static analysis only; your code and tests are never executed.
-It writes the report file, and on the first run it asks where to ignore `.smell-check/` (default: `.git/info/exclude`) before touching anything else.
+It writes the report bundle, and on the first run it asks where to ignore `.smell-check/` (default: `.git/info/exclude`) before touching anything else.
 
 **Does it replace my linter or type checker?**
 No.

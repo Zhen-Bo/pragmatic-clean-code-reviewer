@@ -211,7 +211,7 @@ npm uninstall -g jscpd
 
 Defaults locked above. No jscpd → skip `code.duplicate-code` mechanical candidates.
 
-## Environment block (report appendix)
+## Environment block (summary.md section)
 
 Fixed field set for every report. Use this template:
 

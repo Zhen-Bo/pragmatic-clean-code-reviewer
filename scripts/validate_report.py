@@ -288,7 +288,7 @@ def parse_table(section_text: str, columns: tuple[str, ...], context: str) -> li
         values = split_table_row(line)
         if len(values) != len(columns):
             raise ReportError(f"{context} has a row with the wrong column count")
-        rows.append(dict(zip(columns, values, strict=True)))
+        rows.append(dict(zip(columns, values)))
     return rows
 
 

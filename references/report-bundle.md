@@ -69,15 +69,15 @@ Each `report` cell is a Markdown link. Its label and target are the same relativ
 
 ## Sharding
 
-Merge, deduplicate, sort, and assign global ids before sharding.
+Merge, deduplicate, sort, and assign global ids before sharding. Then cut the sorted list into shards without reordering it.
 
-1. Separate active and dismissed findings.
-2. Group by the first location. Use its first two path segments as the source area; use its parent when fewer exist and `_root` for a root file (its slug is `root`).
-3. Slug the area with lowercase ASCII letters, digits, and hyphens.
-4. Split each status and area group into Markdown files of at most 100 findings. Name them `<area>-<status>-<part>.md`, such as **src-auth-active-001.md**, and number each area and status group from `001`.
-5. Add every shard and its exact finding count to the `Finding reports` table.
+1. Read the source area of each finding from its first location. Use the first two path segments; use the parent when fewer exist and `_root` for a root file.
+2. Give each area one slug, different from every other area slug of the same status. Use the original name: keep non-ASCII characters as they are, such as `服務`, lowercase the ASCII letters, and replace every other ASCII character with one hyphen. The slug of `_root` is `root`.
+3. Walk the sorted findings and start a new shard when the status changes, the area changes, or the open shard holds 100 findings. One area can own several shards that are not next to each other, such as **root-active-001.md**, **scripts-active-001.md**, and **root-active-002.md**.
+4. Name each shard `<area-slug>-<status>-<part>.md`, such as **src-auth-active-001.md**. Number the parts of each area and status pair from `001` in cut order.
+5. Add every shard and its exact finding count to the `Finding reports` table, in cut order.
 
-Order shard rows by status (active then dismissed) and the first finding location in each shard. Records preserve the global finding order. Follow [finding-schema.md](finding-schema.md) for each entry.
+Cut order keeps the global finding order, so shard rows already sort by status (active then dismissed) and by the first finding location in each shard. Follow [finding-schema.md](finding-schema.md) for each entry.
 
 ## Generate and validate
 

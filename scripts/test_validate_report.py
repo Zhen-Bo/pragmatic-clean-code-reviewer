@@ -151,6 +151,17 @@ def main() -> None:
             result = validate_bundle(bundle)
             assert result["findings"] == count
 
+        # One area can own several shards that are not next to each other.
+        interleaved = make_shards(
+            root / "interleaved-areas",
+            [
+                ("_root", "findings/root-active-001.md", [(1, "build.py:1")]),
+                ("scripts", "findings/scripts-active-001.md", [(2, "scripts/x.py:1")]),
+                ("_root", "findings/root-active-002.md", [(3, "setup.py:1")]),
+            ],
+        )
+        assert validate_bundle(interleaved) == {"findings": 3, "shards": 3}
+
         non_ascii_areas = make_shards(
             root / "non-ascii-areas",
             [
@@ -340,7 +351,8 @@ def main() -> None:
 
     print(
         "[PASS] report validator: Markdown manifest, section order, rule summary, "
-        "shard limits, links, finding order, and self-contained HTML"
+        "shard limits, area slugs, fenced snippets, links, finding order, and "
+        "self-contained HTML"
     )
 
 

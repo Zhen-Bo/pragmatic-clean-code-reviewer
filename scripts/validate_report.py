@@ -81,7 +81,7 @@ class SelfContainedHTMLParser(HTMLParser):
         if self.violation or re.search(r"@import\b", css, re.IGNORECASE):
             self.violation = self.violation or "CSS @import"
             return
-        for match in re.finditer(r"url\(\s*([^)]*?)\s*\)", css, re.IGNORECASE):
+        for match in re.finditer(r"url\(([^)]*)\)", css, re.IGNORECASE):
             value = match.group(1).strip().strip("'\"")
             if value and not value.startswith("#") and not value.lower().startswith("data:"):
                 self.violation = f"CSS url({value})"

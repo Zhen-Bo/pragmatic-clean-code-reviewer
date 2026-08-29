@@ -287,6 +287,15 @@ def main() -> None:
         report.write_text(content, encoding="utf-8")
         expect_error(unordered, "sort by status, path")
 
+        bom_summary = make_bundle(root / "bom-summary", 3)
+        summary_path = bom_summary / "summary.md"
+        summary_path.write_bytes(b"\xef\xbb\xbf" + summary_path.read_bytes())
+        assert validate_bundle(bom_summary)["findings"] == 3
+
+        invalid_utf8 = make_bundle(root / "invalid-utf8", 3)
+        (invalid_utf8 / "summary.md").write_bytes(b"\xff")
+        expect_error(invalid_utf8, "is not valid UTF-8")
+
         bad_front_matter = make_bundle(root / "bad-front-matter", 0)
         summary_path = bad_front_matter / "summary.md"
         content = summary_path.read_text(encoding="utf-8")

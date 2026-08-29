@@ -119,9 +119,11 @@ class SelfContainedHTMLParser(HTMLParser):
 
 def read_text(path: Path) -> str:
     try:
-        content = path.read_text(encoding="utf-8")
+        content = path.read_text(encoding="utf-8-sig")
     except FileNotFoundError as exc:
         raise ReportError(f"missing file: {path}") from exc
+    except UnicodeDecodeError as exc:
+        raise ReportError(f"{path} is not valid UTF-8") from exc
     if not content.strip():
         raise ReportError(f"{path} must not be empty")
     return content
